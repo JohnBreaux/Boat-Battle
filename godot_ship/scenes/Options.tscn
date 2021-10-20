@@ -1,8 +1,123 @@
-[gd_scene format=2]
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://script/options/Option-Background.png" type="Texture" id=1]
 
 [node name="Options" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 __meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="TextureRect" type="TextureRect" parent="."]
+margin_right = 40.0
+margin_bottom = 40.0
+texture = ExtResource( 1 )
+__meta__ = {
+"_edit_lock_": true,
+"_edit_use_anchors_": false
+}
+
+[node name="RichTextLabel" type="RichTextLabel" parent="."]
+margin_left = 294.0
+margin_top = 68.0
+margin_right = 346.0
+margin_bottom = 83.0
+custom_colors/default_color = Color( 0, 0, 0, 1 )
+text = "Options"
+__meta__ = {
+"_edit_lock_": true,
+"_edit_use_anchors_": false
+}
+
+[node name="Slider Container" type="VBoxContainer" parent="."]
+margin_left = 216.0
+margin_top = 128.0
+margin_right = 424.0
+margin_bottom = 160.0
+__meta__ = {
+"_edit_lock_": true,
+"_edit_use_anchors_": false
+}
+
+[node name="SFX Setting" type="Node2D" parent="Slider Container"]
+position = Vector2( 0, 8 )
+
+[node name="SFX Label" type="Label" parent="Slider Container/SFX Setting"]
+margin_top = -8.0
+margin_right = 64.0
+margin_bottom = 8.0
+custom_colors/font_color = Color( 0, 0, 0, 1 )
+text = "SFX:"
+align = 2
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="SFX Slider" type="HSlider" parent="Slider Container/SFX Setting"]
+margin_left = 64.0
+margin_top = -8.0
+margin_right = 208.0
+margin_bottom = 8.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Volume Setting" type="Node2D" parent="Slider Container"]
+position = Vector2( 0, 24 )
+
+[node name="Volume Label" type="Label" parent="Slider Container/Volume Setting"]
+margin_top = -8.0
+margin_right = 64.0
+margin_bottom = 8.0
+custom_colors/font_color = Color( 0, 0, 0, 1 )
+text = "Volume:"
+align = 2
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Volume Slider" type="HSlider" parent="Slider Container/Volume Setting"]
+margin_left = 64.0
+margin_top = -8.0
+margin_right = 208.0
+margin_bottom = 8.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+margin_left = 216.0
+margin_top = 160.0
+margin_right = 424.0
+margin_bottom = 184.0
+__meta__ = {
+"_edit_lock_": true,
+"_edit_use_anchors_": false
+}
+
+[node name="Button" type="Button" parent="HBoxContainer"]
+margin_right = 102.0
+margin_bottom = 24.0
+rect_min_size = Vector2( 102, 0 )
+text = "Light Mode"
+
+[node name="Button2" type="Button" parent="HBoxContainer"]
+margin_left = 106.0
+margin_right = 208.0
+margin_bottom = 24.0
+rect_min_size = Vector2( 102, 0 )
+text = "Dark Mode"
+
+[node name="Button" type="Button" parent="."]
+margin_left = 16.0
+margin_top = 16.0
+margin_right = 28.0
+margin_bottom = 36.0
+text = "Back"
+__meta__ = {
+"_edit_lock_": true,
 "_edit_use_anchors_": false
 }
