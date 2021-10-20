@@ -16,23 +16,28 @@ var menu_hidden = Transform2D(Vector2(1,0), Vector2(0,1), Vector2(0,-170))
 var menu_active = Transform2D(Vector2(1,0), Vector2(0,1), Vector2(0,   0))
 
 # signals
-signal clear_in
-signal clear_out
-signal print_text(text)
+signal clear_in  # clears the debug input
+signal clear_out # clears the debug output
+signal print_text(text) # Sends text for printing to the Out buffer
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	
 	debug_canvas = get_node("debug_canvas")
 	debug_transform = debug_canvas.get_transform()
 	debug_output = get_node("debug_canvas/VBoxContainer/TextEdit")
+	command_help([""])
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	if (debug_active && menu_position < 1):
+		# Move the menu down
 		menu_position += menu_velocity * delta;
+		$debug_canvas/VBoxContainer/LineEdit.grab_focus()
 	elif (!debug_active && menu_position > 0):
+		# Move the menu up
 		menu_position -= menu_velocity * delta;
+		# Clear the input box
+		emit_signal("clear_in")
 	else:
 		menu_position = round(menu_position)
 	
@@ -42,6 +47,8 @@ func _input(event):
 	if event.is_action_pressed("ui_debug"):
 		# open debug menu
 		debug_active = !debug_active;
+		# Hand the keyboard focus to the next valid focus
+		if (!debug_active): find_next_valid_focus().grab_focus()
 
 func _on_LineEdit_text_entered(line):
 	emit_signal("clear_in")
@@ -82,19 +89,22 @@ func command_start (command):
 
 #   stop: Stops scene by name of root node.
 func command_stop (command):
-	if command.size() > 1 and command[1] != "Debug":
-		MessageBus.emit_signal("kill_scene", command[1])
-		debug_print_line("kill '" + command[1] + "'\n")
+	if command.size() > 1:
+		if command[1] != "Debug":
+			debug_print_line("kill '" + command[1] + "'\n")
+			MessageBus.emit_signal("kill_scene", command[1])
+		else:
+			debug_print_line("YOU DIDN'T SAY THE MAGIC WORD!\n")
 	else:
 		debug_print_line("Usage: kill scene")
 
 #   list: Lists names of active scenes (children of Root)
-func command_list (command):
+func command_list (_command):
 	debug_print_line("list: ")
 	MessageBus.emit_signal("list_scenes")
 
 #   restart: Kills the current tree and replants Root
-func command_restart (command):
+func command_restart (_command):
 	MessageBus.emit_signal("return_to_title")
 
 #   print: prints a message to the in-game debug console
@@ -115,13 +125,16 @@ func command_emit (command):
 		0: debug_print_line( "Usage: raw_emit signal [value]\n")
 
 #   clear: clears the debug output
-func command_clear (command):
+func command_clear (_command):
 	emit_signal("clear_out");
+
+func command_tree (_command):
+	pass
 
 #   help: Prints help dialogue
 func command_help (command):
 	if (command.size() == 1):
-		debug_print_line("Ship's Commander V0.1\n")
+		debug_print_line("Ship's Commander V 0.1\n")
 		debug_print_line("Valid commands:\nstart, stop, list, restart, print, emit, clear, help\n")
 	else:
 		debug_print_line(command[1])
@@ -152,4 +165,4 @@ func command_help (command):
 				debug_print_line("Prints information about a command.\n")
 			_:
 				debug_print_line(command[1] + "\nIsn't a valid command\n")
-	debug_print_line("\n")
+		debug_print_line("\n")
