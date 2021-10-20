@@ -11,12 +11,13 @@ var debug_enabled = true
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	# Connect to signals
-	MessageBus.connect("start_tcsn", self, "_on_scene_start_by_name")
-	MessageBus.connect("change_scene", self, "_on_scene_start")
-	MessageBus.connect("kill_scene",   self, "_on_scene_kill")
-	MessageBus.connect("list_scenes",  self, "_on_scene_list")
-	MessageBus.connect("quit",         self, "_on_quit_request")
-	MessageBus.connect("return_to_title", self, "_on_title_request")
+	var _errno = 0;
+	_errno += MessageBus.connect("start_tcsn", self, "_on_scene_start_by_name")
+	_errno += MessageBus.connect("change_scene", self, "_on_scene_start")
+	_errno += MessageBus.connect("kill_scene",   self, "_on_scene_kill")
+	_errno += MessageBus.connect("list_scenes",  self, "_on_scene_list")
+	_errno += MessageBus.connect("quit",         self, "_on_quit_request")
+	_errno += MessageBus.connect("return_to_title", self, "_on_title_request")
 	# Create the scenes
 	title_screen = preload("res://scenes/Title Screen.tscn")
 	gameplay     = preload("res://scenes/Gameplay.tscn")
