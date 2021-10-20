@@ -17,5 +17,6 @@ __meta__ = {
 [node name="Game" parent="." instance=ExtResource( 2 )]
 
 [node name="Options" parent="." instance=ExtResource( 4 )]
+visible = false
 
 [node name="Debug Menu" parent="." instance=ExtResource( 1 )]
