@@ -6,7 +6,8 @@ extends Control
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	$VBoxContainer/Singleplayer.grab_focus()
+	#$VBoxContainer/Singleplayer.grab_focus()
+	pass
 
 func _on_Singleplayer_pressed():
 	MessageBus.emit_signal("change_scene", "Singleplayer")
