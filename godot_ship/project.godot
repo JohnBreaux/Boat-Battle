@@ -14,6 +14,10 @@ config/name="godot_ship"
 run/main_scene="res://scenes/Main.tscn"
 config/icon="res://icon.png"
 
+[autoload]
+
+MessageBus="*res://script/game/Message Bus.gd"
+
 [display]
 
 window/size/width=640

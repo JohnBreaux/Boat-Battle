@@ -16,7 +16,6 @@ var menu_active = Transform2D(Vector2(1,0), Vector2(0,1), Vector2(0,   0))
 func _ready():
 	debug_canvas = get_node("debug_canvas")
 	debug_transform = debug_canvas.get_transform()
-	return
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
@@ -33,3 +32,9 @@ func _unhandled_input(event):
 	if event.is_action_pressed("ui_debug"):
 		# open debug menu
 		debug_active = !debug_active;
+
+
+
+func _on_LineEdit_text_entered(new_text):
+	
+	pass # Replace with function body.
