@@ -19,7 +19,7 @@ func _ready():
 	gameplay     = preload("res://scenes/Gameplay.tscn")
 	options      = preload("res://scenes/Options.tscn")
 	debug_menu   = preload("res://scenes/Debug Menu.tscn")
-	if (debug_enabled):
+	if debug_enabled:
 		add_child(debug_menu.instance())
 	_on_change_scene("Title")
 
@@ -38,4 +38,4 @@ func _on_quit_request():
 	get_tree().quit()
 	
 func _on_title_request():
-	get_tree().change_scene("res://scenes/Options.tscn")
+	get_tree().change_scene("res://scenes/Main.tscn")
