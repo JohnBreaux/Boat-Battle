@@ -28,12 +28,20 @@ func _ready():
 func _on_scene_start(scene):
 	print ("_on_scene_start(",scene,")")
 	match scene:
-		"Singleplayer": add_child (gameplay.instance())
-		"Multiplayer":  
+		"Singleplayer": 
+			add_child (gameplay.instance())
+			return true
+		"Multiplayer": 
 			add_child (gameplay.instance())
 			# add_child (multiplayercontroller.instance())
-		"Options":      add_child (options.instance())
-		"Title":        add_child (title_screen.instance())
+			return true
+		"Options": 
+			add_child (options.instance())
+			return true
+		"Title": 
+			add_child (title_screen.instance())
+			return true
+		
 
 # Kills all child nodes with name matching `scene`
 func _on_scene_kill(scene):
@@ -42,6 +50,8 @@ func _on_scene_kill(scene):
 	for i in range (c.size()):
 		if c[i].name == scene:
 			c[i].queue_free()
+			return true
+	return false
 
 # Quits
 func _on_quit_request():
