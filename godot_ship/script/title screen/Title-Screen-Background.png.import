@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/Title-Screen-Background.png-0858ea44e9c9235fceac088a9c0f7d28.stex"
+path="res://.import/Title-Screen-Background.png-dbef7fef33c56892772634130111c923.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://scenes/Title-Screen-Background.png"
-dest_files=[ "res://.import/Title-Screen-Background.png-0858ea44e9c9235fceac088a9c0f7d28.stex" ]
+source_file="res://script/title screen/Title-Screen-Background.png"
+dest_files=[ "res://.import/Title-Screen-Background.png-dbef7fef33c56892772634130111c923.stex" ]
 
 [params]
 
