@@ -48,6 +48,7 @@ placeholder_text = "By your command."
 caret_blink = true
 script = ExtResource( 3 )
 
-[connection signal="clear_line" from="." to="debug_canvas/VBoxContainer/LineEdit" method="_on_Debug_clear_line"]
+[connection signal="clear_in" from="." to="debug_canvas/VBoxContainer/LineEdit" method="_on_Debug_clear_in"]
+[connection signal="clear_out" from="." to="debug_canvas/VBoxContainer/TextEdit" method="_on_Debug_clear_out"]
 [connection signal="print_text" from="." to="debug_canvas/VBoxContainer/TextEdit" method="_on_Debug_print_text"]
 [connection signal="text_entered" from="debug_canvas/VBoxContainer/LineEdit" to="." method="_on_LineEdit_text_entered"]

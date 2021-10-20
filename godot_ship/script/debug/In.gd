@@ -5,5 +5,5 @@ extends LineEdit
 # var a = 2
 # var b = "text"
 
-func _on_Debug_clear_line():
+func _on_Debug_clear_in():
 	clear()
