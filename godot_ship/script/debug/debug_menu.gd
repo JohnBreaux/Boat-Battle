@@ -6,7 +6,7 @@ var debug_transform
 
 var debug_active = false
 var menu_position = 0.0
-var menu_velocity = 2
+var menu_velocity = 4
 
 # positions when the menu is hidden/active
 var menu_hidden = Transform2D(Vector2(1,0), Vector2(0,1), Vector2(0,-180))
