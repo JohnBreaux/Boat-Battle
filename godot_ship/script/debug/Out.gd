@@ -3,7 +3,7 @@ extends TextEdit
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	var _errno = MessageBus.connect("print_console", self, "_on_Debug_print_text")
-	pass # Replace with function body.
+	grab_focus()
 
 
 func _on_Debug_print_text(text):

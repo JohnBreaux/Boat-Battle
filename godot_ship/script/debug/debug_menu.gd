@@ -48,7 +48,7 @@ func _input(event):
 		# open debug menu
 		debug_active = !debug_active;
 		# Hand the keyboard focus to the next valid focus
-		if (!debug_active): find_next_valid_focus().grab_focus()
+		if (!debug_active) && find_next_valid_focus(): find_next_valid_focus().grab_focus()
 
 func _on_LineEdit_text_entered(line):
 	emit_signal("clear_in")

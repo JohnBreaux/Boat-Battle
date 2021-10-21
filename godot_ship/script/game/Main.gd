@@ -25,7 +25,14 @@ func _ready():
 	debug_menu   = preload("res://scenes/Debug Menu.tscn")
 	if debug_enabled:
 		add_child(debug_menu.instance())
-	_on_scene_start("Title")
+
+# Ensure the scene doesn't become empty
+func _process(_delta):
+	# Make sure there's something running
+	# Debug counts as one child
+	if get_child_count() < 1 + int(debug_enabled):
+		MessageBus.emit_signal("change_scene", "Title")
+		pass
 
 # Creates a new instance of each menu scene
 func _on_scene_start(scene):
