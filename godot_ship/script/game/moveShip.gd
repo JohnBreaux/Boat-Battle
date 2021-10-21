@@ -1,0 +1,34 @@
+extends Sprite
+
+
+# Declare member variables here. Examples:
+# var a = 2
+# var b = "text"
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	pass # Replace with function body.
+
+var dragging = false;
+var click_radius = 32
+var orient = 0;
+
+func _input(event):
+	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT:
+		if(event.position - position).length() < click_radius:
+			if not dragging and event.pressed:
+				dragging = true;
+				
+		if dragging and not event.pressed:
+			dragging = false;
+			
+	if event is InputEventMouseMotion and dragging:
+		position = event.position;
+		
+	if event.is_action_pressed("ui_rotate"):
+		if(event.position - position).length() < click_radius:
+			rotate(PI/2);
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+#func _process(delta):
+#	pass
