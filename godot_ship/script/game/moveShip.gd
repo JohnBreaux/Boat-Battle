@@ -11,7 +11,7 @@ var held = false
 func _ready():
 	pass # Replace with function body.
 
-var click_radius = 32
+var click_radius = 16
 var orient = 0;
 
 func _input(event):

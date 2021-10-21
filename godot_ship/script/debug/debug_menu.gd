@@ -11,6 +11,8 @@ var debug_active = false
 var menu_position = 0.0
 var menu_velocity = 4
 
+onready var present_working_node = get_node("/root")
+
 # positions when the menu is hidden/active
 var menu_hidden = Transform2D(Vector2(1,0), Vector2(0,1), Vector2(0,-170))
 var menu_active = Transform2D(Vector2(1,0), Vector2(0,1), Vector2(0,   0))
@@ -71,6 +73,10 @@ func _on_LineEdit_text_entered(line):
 			command_clear(command)
 		"help", "h":
 			command_help(command)
+		"pwd", "pwn":
+			command_pwd(command)
+		"cd", "cn":
+			command_cd(command)
 		_:
 			debug_print_line("Command not recognized.\n")
 
@@ -100,8 +106,11 @@ func command_stop (command):
 
 #   list: Lists names of active scenes (children of Root)
 func command_list (_command):
-	debug_print_line("list: ")
-	MessageBus.emit_signal("list_scenes")
+	var children = present_working_node.get_children()
+	var names = []
+	for i in range (children.size()):
+		names.append(children[i].name)
+	debug_print_line(String(names) + "\n")
 
 #   restart: Kills the current tree and replants Root
 func command_restart (_command):
@@ -128,7 +137,24 @@ func command_emit (command):
 func command_clear (_command):
 	emit_signal("clear_out");
 
-func command_tree (_command):
+func command_pwd (_command):
+	debug_print_line("pwd\n" + String(present_working_node.get_path()) + "\n")
+
+func command_cd (command):
+	if command.size() > 1:
+		var path
+		if command[1].is_abs_path():
+			path = command[1]
+		else: #convert to absolute path
+			path = String(present_working_node.get_path()) + "/" + command[1]
+		var node = get_node(path)
+		if node:
+			debug_print_line("cd " + command[1] + "\n")
+			present_working_node = node
+		else:
+			debug_print_line ('change node: node not found.\n')
+	else:
+		debug_print_line("")
 	pass
 
 #   help: Prints help dialogue
