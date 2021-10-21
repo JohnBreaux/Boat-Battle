@@ -16,4 +16,4 @@ func _ready():
 
 
 func _on_Forfeit_pressed():
-	pass # Replace with function body.
+	queue_free();
