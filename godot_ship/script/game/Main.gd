@@ -23,8 +23,17 @@ func _ready():
 	gameplay     = preload("res://scenes/Gameplay.tscn")
 	options      = preload("res://scenes/Options.tscn")
 	debug_menu   = preload("res://scenes/Debug Menu.tscn")
+	# go fullscreen
+	OS.window_fullscreen = true
 	if debug_enabled:
 		add_child(debug_menu.instance())
+
+# Process global keybinds
+func _input(event):
+	if event.is_action_pressed("ui_fullscreen"):
+		# toggle_fullscreen
+		OS.window_fullscreen = !OS.window_fullscreen
+
 
 # Ensure the scene doesn't become empty
 func _process(_delta):
