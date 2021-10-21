@@ -1,10 +1,33 @@
 extends Control
 
+onready var sound_slider  = find_node("SFX Slider", true, true)
+onready var music_slider  = find_node("Volume Slider", true, true)
+onready var theme_buttons = find_node("Buttons", true, true).get_children()
+
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	find_next_valid_focus().grab_focus()
+	sound_slider.value = OptionsController.get_sfx_volume()
+	music_slider.value = OptionsController.get_mus_volume()
 
 
 func _on_Button_pressed():
 	queue_free()
 	MessageBus.emit_signal("change_scene", "Title")
+
+
+func _on_SFX_Slider_value_changed(value):
+	OptionsController.set_sfx_vol(value)
+
+
+func _on_Volume_Slider_value_changed(value):
+	OptionsController.set_mus_vol(value)
+
+
+func _on_Light_pressed():
+	OptionsController.set_theme("light")
+
+
+func _on_Dark_pressed():
+	OptionsController.set_theme("dark")

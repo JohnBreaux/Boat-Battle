@@ -11,7 +11,7 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="TextureRect" type="TextureRect" parent="."]
+[node name="Background" type="TextureRect" parent="."]
 margin_right = 40.0
 margin_bottom = 40.0
 texture = ExtResource( 1 )
@@ -20,7 +20,7 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="RichTextLabel" type="RichTextLabel" parent="."]
+[node name="MenuLabel" type="RichTextLabel" parent="."]
 margin_left = 294.0
 margin_top = 68.0
 margin_right = 346.0
@@ -32,7 +32,7 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Slider Container" type="VBoxContainer" parent="."]
+[node name="Sliders" type="VBoxContainer" parent="."]
 margin_left = 216.0
 margin_top = 128.0
 margin_right = 424.0
@@ -42,10 +42,10 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="SFX Setting" type="Node2D" parent="Slider Container"]
+[node name="SFX Setting" type="Node2D" parent="Sliders"]
 position = Vector2( 0, 8 )
 
-[node name="SFX Label" type="Label" parent="Slider Container/SFX Setting"]
+[node name="SFX Label" type="Label" parent="Sliders/SFX Setting"]
 margin_top = -8.0
 margin_right = 64.0
 margin_bottom = 8.0
@@ -57,19 +57,26 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="SFX Slider" type="HSlider" parent="Slider Container/SFX Setting"]
+[node name="SFX Slider" type="HSlider" parent="Sliders/SFX Setting"]
 margin_left = 64.0
 margin_top = -8.0
 margin_right = 208.0
 margin_bottom = 8.0
+focus_neighbour_left = NodePath("../../../Back")
+focus_neighbour_top = NodePath("../../../Back")
+focus_neighbour_bottom = NodePath("../../Volume Setting/Volume Slider")
+focus_next = NodePath("../../Volume Setting/Volume Slider")
+focus_previous = NodePath("../../../Back")
+step = 10.0
+tick_count = 11
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Volume Setting" type="Node2D" parent="Slider Container"]
+[node name="Volume Setting" type="Node2D" parent="Sliders"]
 position = Vector2( 0, 24 )
 
-[node name="Volume Label" type="Label" parent="Slider Container/Volume Setting"]
+[node name="Volume Label" type="Label" parent="Sliders/Volume Setting"]
 margin_top = -8.0
 margin_right = 64.0
 margin_bottom = 8.0
@@ -81,39 +88,50 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Volume Slider" type="HSlider" parent="Slider Container/Volume Setting"]
+[node name="Volume Slider" type="HSlider" parent="Sliders/Volume Setting"]
 margin_left = 64.0
 margin_top = -8.0
 margin_right = 208.0
 margin_bottom = 8.0
+focus_neighbour_top = NodePath("../../SFX Setting/SFX Slider")
+focus_neighbour_bottom = NodePath("../../../Theme Select")
+focus_next = NodePath("../../../Theme Select")
+focus_previous = NodePath("../../SFX Setting/SFX Slider")
+step = 10.0
+tick_count = 11
+ticks_on_borders = true
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="HBoxContainer" type="HBoxContainer" parent="."]
+[node name="Buttons" type="HBoxContainer" parent="."]
 margin_left = 216.0
 margin_top = 160.0
 margin_right = 424.0
 margin_bottom = 184.0
+focus_neighbour_left = NodePath("../Back")
+focus_neighbour_top = NodePath("../Sliders/Volume Setting/Volume Slider")
+focus_next = NodePath("../Back")
+focus_previous = NodePath("../Sliders/Volume Setting/Volume Slider")
 __meta__ = {
 "_edit_lock_": true,
 "_edit_use_anchors_": false
 }
 
-[node name="Button" type="Button" parent="HBoxContainer"]
+[node name="Light" type="Button" parent="Buttons"]
 margin_right = 102.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 102, 0 )
 text = "Light Mode"
 
-[node name="Button2" type="Button" parent="HBoxContainer"]
+[node name="Dark" type="Button" parent="Buttons"]
 margin_left = 106.0
 margin_right = 208.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 102, 0 )
 text = "Dark Mode"
 
-[node name="Button" type="Button" parent="."]
+[node name="Back" type="Button" parent="."]
 margin_left = 16.0
 margin_top = 16.0
 margin_right = 28.0
@@ -124,4 +142,8 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[connection signal="pressed" from="Button" to="." method="_on_Button_pressed"]
+[connection signal="value_changed" from="Sliders/SFX Setting/SFX Slider" to="." method="_on_SFX_Slider_value_changed"]
+[connection signal="value_changed" from="Sliders/Volume Setting/Volume Slider" to="." method="_on_Volume_Slider_value_changed"]
+[connection signal="pressed" from="Buttons/Light" to="." method="_on_Light_pressed"]
+[connection signal="pressed" from="Buttons/Dark" to="." method="_on_Dark_pressed"]
+[connection signal="pressed" from="Back" to="." method="_on_Button_pressed"]

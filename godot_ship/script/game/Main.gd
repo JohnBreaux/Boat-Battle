@@ -58,13 +58,10 @@ func _on_scene_start_by_name(scene):
 
 # Kills all child nodes with name matching `scene`
 func _on_scene_kill(scene):
-	var c = get_children()
-	for i in range (c.size()):
-		if c[i].name == scene:
-			c[i].queue_free()
-			MessageBus.emit_signal("print_console", String(c[i].name) + " killed.\n".c_unescape())
-			return true
-	return false
+	var node = find_node(scene, false, false)
+	if node :
+		node.queue_free()
+		MessageBus.emit_signal("print_console", String(node.name) + " killed.\n".c_unescape())
 
 func _on_scene_list():
 	var children = get_children()

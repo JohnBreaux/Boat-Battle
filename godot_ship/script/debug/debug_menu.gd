@@ -11,7 +11,7 @@ var debug_active = false
 var menu_position = 0.0
 var menu_velocity = 4
 
-onready var present_working_node = get_node("/root")
+onready var present_working_node = get_node("/root/Main")
 
 # positions when the menu is hidden/active
 var menu_hidden = Transform2D(Vector2(1,0), Vector2(0,1), Vector2(0,-170))
@@ -28,6 +28,7 @@ func _ready():
 	debug_transform = debug_canvas.get_transform()
 	debug_output = get_node("debug_canvas/VBoxContainer/TextEdit")
 	command_help([""])
+	debug_print_line("> ")
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
@@ -54,11 +55,11 @@ func _input(event):
 
 func _on_LineEdit_text_entered(line):
 	emit_signal("clear_in")
-	debug_print_line("")
+	debug_print_line(line + "\n")
 	var command = line.split(' ', true, 1)
 	match command[0]:
-		"start", "s":
-				command_start(command)
+		"start", "open", "o":
+			command_start(command)
 		"stop", "kill", "k":
 			command_stop(command)
 		"list", "ls", "l":
@@ -79,6 +80,7 @@ func _on_LineEdit_text_entered(line):
 			command_cd(command)
 		_:
 			debug_print_line("Command not recognized.\n")
+	debug_print_line("> ")
 
 func debug_print_line(string):
 	emit_signal("print_text", string.c_unescape())
@@ -88,25 +90,35 @@ func debug_print_line(string):
 #   start: Loads scene from res://scenes/*.tscn by filename, and starts it
 func command_start (command):
 	if command.size() > 1:
-		MessageBus.emit_signal("start_tcsn", command[1])
+		var pack = load("res://scenes/" + command[1] + ".tscn");
+		present_working_node.add_child(pack.instance());
 		debug_print_line("start '" + command[1] + "'\n")
 	else:
 		debug_print_line("Usage: start scene")
 
-#   stop: Stops scene by name of root node.
+#   stop: kills a child of current working node
 func command_stop (command):
 	if command.size() > 1:
-		if command[1] != "Debug":
-			debug_print_line("kill '" + command[1] + "'\n")
-			MessageBus.emit_signal("kill_scene", command[1])
+		var node = present_working_node.find_node(command[1], false, false)
+		if node:
+			if String(node.get_path()).match("*Debug*"):
+				debug_print_line("YOU DIDN'T SAY THE MAGIC WORD!\n")
+			else:
+				node.queue_free()
+				debug_print_line(command[1] + " killed\n")
 		else:
-			debug_print_line("YOU DIDN'T SAY THE MAGIC WORD!\n")
+			debug_print_line(command[0] + ": " + command[1] + " not found.\n")
 	else:
-		debug_print_line("Usage: kill scene")
+		debug_print_line("Usage: kill name\n")
 
-#   list: Lists names of active scenes (children of Root)
-func command_list (_command):
-	var children = present_working_node.get_children()
+#   list: Lists children of node
+func command_list (command):
+	var node = null
+	if (command.size() > 1):
+		node = complete_path(command[1])
+	if (!node):
+		node = present_working_node
+	var children = node.get_children()
 	var names = []
 	for i in range (children.size()):
 		names.append(children[i].name)
@@ -120,8 +132,10 @@ func command_restart (_command):
 func command_print(command):
 	if command.size() > 1:
 		debug_print_line(command[1] + "\n")
+	else:
+		debug_print_line("\n")
 
-#   emit: emits a message onto the MessageBus (!Extremely Danger!)
+#   emit: emits a message onto the MessageBus
 func command_emit (command):
 	var mbus_signal = command[1].split(' ', true, 1)
 	match mbus_signal.size():
@@ -137,22 +151,17 @@ func command_emit (command):
 func command_clear (_command):
 	emit_signal("clear_out");
 
+#   pwd: print the current working node's path
 func command_pwd (_command):
-	debug_print_line("pwd\n" + String(present_working_node.get_path()) + "\n")
-
+	debug_print_line(String(present_working_node.get_path()) + "\n")
+#   cd: change the current working node
 func command_cd (command):
 	if command.size() > 1:
-		var path
-		if command[1].is_abs_path():
-			path = command[1]
-		else: #convert to absolute path
-			path = String(present_working_node.get_path()) + "/" + command[1]
-		var node = get_node(path)
+		var node = complete_path(command[1])
 		if node:
-			debug_print_line("cd " + command[1] + "\n")
 			present_working_node = node
 		else:
-			debug_print_line ('change node: node not found.\n')
+			debug_print_line ('cn: no such node: ' + command[1] + '\n')
 	else:
 		debug_print_line("")
 	pass
@@ -160,23 +169,22 @@ func command_cd (command):
 #   help: Prints help dialogue
 func command_help (command):
 	if (command.size() == 1):
-		debug_print_line("Ship's Commander V 0.1\n")
-		debug_print_line("Valid commands:\nstart, stop, list, restart, print, emit, clear, help\n")
+		debug_print_line("Valid commands:\nhelp, start, stop, list, restart, print, emit, clear, pwn, cn\n")
 	else:
 		debug_print_line(command[1])
 		match command[1]:
-			"start", "s":
-				debug_print_line(" filename\nAliases: 'start', 's'\n")
-				debug_print_line("Loads and runs the scene filename.tscn\n")
+			"start", "open", "o":
+				debug_print_line(" filename\nAliases: 'start', 'open', 'o'\n")
+				debug_print_line("Load add the scene filename.tscn as child\n")
 			"stop", "kill", "k":
-				debug_print_line(" scene\nAliases: 'stop', 'kill', 'k'\n")
-				debug_print_line("Kills an active scene whose name matches node.\n")
+				debug_print_line(" name\nAliases: 'stop', 'kill', 'k'\n")
+				debug_print_line("Kill node with matching name\n")
 			"list", "ls", "l":
-				debug_print_line("\nAliases: 'list', 'ls', 'l'\n")
-				debug_print_line("Lists the currently active scenes\n")
+				debug_print_line(" [path]\nAliases: 'list', 'ls', 'l'\n")
+				debug_print_line("List node children\n")
 			"restart", "killall":
 				debug_print_line("\nAliases: 'restart', 'killall'\n")
-				debug_print_line("Kills the current scene tree and plants a new Root.\n")
+				debug_print_line("Kill the current scene tree and plant a new Root.\n")
 			"print", "p":
 				debug_print_line(" string\nAliases: 'print', 'p'\n")
 				debug_print_line("Prints a string to the in-game debug console\n")
@@ -189,6 +197,20 @@ func command_help (command):
 			"help", "h":
 				debug_print_line(" [command]\nAliases: 'help', 'h'\n")
 				debug_print_line("Prints information about a command.\n")
+			"pwd", "pwn":
+				debug_print_line("\nAliases: 'pwn', 'pwd'\n")
+				debug_print_line("Prints the Present Working Node.\n")
+			"cd", "cn":
+				debug_print_line(" path/to/node\nAliases: 'cn', 'cd'\n")
+				debug_print_line("Change the Present Working Node.\n")
 			_:
 				debug_print_line(command[1] + "\nIsn't a valid command\n")
-		debug_print_line("\n")
+
+# Completes a relative or absolute path, and returns the node it refers to
+func complete_path(path):
+	if path.is_rel_path(): # convert to absolute path
+		path = String(present_working_node.get_path()) + "/" + path
+	var node = get_node(path)
+	if node:
+		return node
+	return null
