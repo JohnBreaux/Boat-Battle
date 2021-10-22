@@ -1,6 +1,5 @@
 extends Control
 
-# Declare member variables here.
 var debug_output
 var debug_line = 0
 
@@ -11,6 +10,58 @@ var debug_active = false
 var menu_position = 0.0
 var menu_velocity = 4
 
+var history = []
+var history_pos = 0
+
+# helptext: args list and help blurb accessed by function name
+var helptext = {
+#	command_id         [args                 "Help text"                                                ]
+	"command_help":    [" [command]",        "Print information about command.\n"                       ],
+	"command_history": ["",                  "Print the history log.\n"                                 ],
+	"command_perf":    [" stat",             "Print performance info (fps, nodes, proctime, ... )\n"    ],
+	
+	"command_list":    [" [path]",           "List children of path, or of present working node.\n"     ],
+	"command_start":   [" filename",         "Load PackedScene filename.tscn as child.\n"               ],
+	"command_kill":    [" name",             "Kill child node with matching name.\n"                    ],
+	
+	"command_pwd":     ["",                  "Print the Present Working Node.\n"                        ],
+	"command_cd":      [" path",             "Change the Present Working Node to path.\n"               ],
+	
+	"command_print":   [" string",           "Print string to the in-game debug console.\n"             ],
+	"command_clear":   ["",                  "Clear the debug output.\n"                                ],
+	
+	"command_emit":    [" signal [message]", "Emit a message on MessageBus.signal without validation.\n"],
+	"command_call":    [" func [args ...]",  "Call func(...) with arguments args.\n"                    ],
+	
+	"command_restart": ["",                  "Kill the current scene tree and plant a new Root.\n"      ],
+	"command_exit":    ["",                  "Quits the program.\n"                                     ],
+}
+
+# List of debug commands accessed by alias
+# The first alias is the canonical alias, aka command name
+var commands = {
+#   [alias array]:                  "func_name"
+	["help", "h"]:                  "command_help",
+	["hist", "history"]:            "command_history",
+	["perf", "performance"]:        "command_perf",
+	
+	["list", "ls", "l"]:            "command_list",
+	["start", "open", "o"]:         "command_start",
+	["kill", "stop", "k"]:          "command_kill",
+	
+	["pwd", "pwn"]:                 "command_pwd",
+	["cd", "cn"]:                   "command_cd",
+	
+	["print", "p"]:                 "command_print",
+	["clear","cls"]:                "command_clear",
+	
+	["emit", "e"]:                  "command_emit",
+	["call", "func"]:               "command_call",
+	
+	["restart", "killall"]:         "command_restart",
+	["exit", "quit"]:               "command_exit",
+	}
+
 onready var present_working_node = get_node("/root/Main")
 
 # positions when the menu is hidden/active
@@ -18,11 +69,19 @@ var menu_hidden = Transform2D(Vector2(1,0), Vector2(0,1), Vector2(0,-170))
 var menu_active = Transform2D(Vector2(1,0), Vector2(0,1), Vector2(0,   0))
 
 # signals
-signal clear_in  # clears the debug input
-signal clear_out # clears the debug output
-signal print_text(text) # Sends text for printing to the Out buffer
+#   clear_in:  clear the debug input
+signal clear_in
+#   clear_out: clear the debug output
+signal clear_out
+#   print_text(text): Send text to the Out buffer
+signal print_text(text)
+#   history_event(text): Send text to the In buffer
+signal history_event(text)
 
-# Called when the node enters the scene tree for the first time.
+# Inherited functions:
+#   _ready: Called when the node enters the scene tree for the first time.
+#     params: none
+#     returns: void
 func _ready():
 	debug_canvas = get_node("debug_canvas")
 	debug_transform = debug_canvas.get_transform()
@@ -30,7 +89,9 @@ func _ready():
 	command_help([""])
 	debug_print_line("> ")
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
+#   _process: Called every frame. Controls slide-in animation and focus-grabbing
+#     params: delta: elapsed time
+#     returns: void
 func _process(delta):
 	if (debug_active && menu_position < 1):
 		# Move the menu down
@@ -46,47 +107,109 @@ func _process(delta):
 	
 	debug_canvas.set_transform(menu_hidden.interpolate_with(menu_active, menu_position))
 
+#   _input: Process user input related to the debug menu
+#     params: event: The input event which triggered _input call
+#     returns: void
 func _input(event):
-	if event.is_action_pressed("ui_debug"):
+	if event.is_action_pressed("ui_debug_open"):
 		# open debug menu
 		debug_active = !debug_active;
 		# Hand the keyboard focus to the next valid focus
 		if (!debug_active) && find_next_valid_focus(): find_next_valid_focus().grab_focus()
+	if event.is_action_pressed("ui_debug_up") and debug_active:
+		#traverse history up
+		history_move(-1)
+		pass
+	if event.is_action_pressed("ui_debug_down") and debug_active:
+		#traverse history down
+		history_move(+1)
 
+# Signal-processing functions:
+#   _on_LineEdit_text_entered: process incoming text line
+#     params: line: Line of text entered by user
+#     returns: void
 func _on_LineEdit_text_entered(line):
+	history_append(line)
 	emit_signal("clear_in")
 	debug_print_line(line + "\n")
 	var command = line.split(' ', true, 1)
-	match command[0]:
-		"start", "open", "o":
-			command_start(command)
-		"stop", "kill", "k":
-			command_stop(command)
-		"list", "ls", "l":
-			command_list(command)
-		"restart", "killall":
-			command_restart(command)
-		"print", "p":
-			command_print(command)
-		"raw_emit", "emit", "r", "e": # Send a signal over the MessageBus
-			command_emit(command)
-		"clear","cls": # Clear the output
-			command_clear(command)
-		"help", "h":
-			command_help(command)
-		"pwd", "pwn":
-			command_pwd(command)
-		"cd", "cn":
-			command_cd(command)
-		_:
-			debug_print_line("Command not recognized.\n")
+	var command_func = parse(command[0])
+	if command_func:
+		call(command_func, command)
+	else:
+		debug_print_line("dbg: command not found: " + command[0] + "\n")
 	debug_print_line("> ")
 
+# History_related helper functions:
+func history_append(text):
+	history.resize(history_pos + 2)
+	history[history_pos] = text
+	history_pos += 1
+
+func history_move(direction):
+	if history_pos + direction < 0:
+		pass
+	elif history_pos + direction >= history.size():
+		pass
+	else:
+		history_pos += direction;
+		if history[history_pos]:
+			emit_signal("history_event", history[history_pos])
+		else:
+			emit_signal("clear_in")
+
+# Debug-related helper functions:
+#   debug_print_line: request printing of c-escaped text to debug output
+#     params: string: Text string to print
+#     returns: void
 func debug_print_line(string):
 	emit_signal("print_text", string.c_unescape())
 
-# Commands
+#   complete_path: complete a relative or absolute path, and returns the node it refers to
+#     params: path: relative or absolute path to a node
+#     returns: void
+func complete_path(path):
+	if path.is_rel_path(): # convert to absolute path
+		path = String(present_working_node.get_path()) + "/" + path
+	var node = get_node(path)
+	if node:
+		return node
+	return null
 
+# Command-lookup functions:
+#   parse: parse command name and return associated func name
+#     params: alias: alias of a command
+#     returns: name of command function
+func parse(alias):
+	var key = lookup(alias)
+	if key:
+		return commands[key]
+	return null
+
+#   name_lookup: find key associated with function name
+#     params: command_name: alias of a command
+#     returns: key: Array containing all aliases of the given command
+func lookup(alias):
+	for key in commands.keys():
+		if alias in key:
+			return key
+	return null
+
+#   get_canonical: find the canonical name for a command
+#     params: alias: alias of a command
+#     returns: name: canonical name for a command
+func get_canonical(alias):
+	var names = lookup(alias)
+	if names:
+		return names[0]
+	return null
+
+#   get_usage: Construct the usage string for a command
+func get_usage(alias):
+	return "Usage: " + alias + helptext[parse(alias)][0] + "\n"
+
+# Commands. All commands take in a parameter called command,
+# which contains a partially tokenized command
 #   start: Loads scene from res://scenes/*.tscn by filename, and starts it
 func command_start (command):
 	if command.size() > 1:
@@ -94,10 +217,10 @@ func command_start (command):
 		present_working_node.add_child(pack.instance());
 		debug_print_line("start '" + command[1] + "'\n")
 	else:
-		debug_print_line("Usage: start scene")
+		debug_print_line(get_usage(command[0]))
 
 #   stop: kills a child of current working node
-func command_stop (command):
+func command_kill (command):
 	if command.size() > 1:
 		var node = present_working_node.find_node(command[1], false, false)
 		if node:
@@ -109,7 +232,7 @@ func command_stop (command):
 		else:
 			debug_print_line(command[0] + ": " + command[1] + " not found.\n")
 	else:
-		debug_print_line("Usage: kill name\n")
+		debug_print_line(get_usage(command[0]))
 
 #   list: Lists children of node
 func command_list (command):
@@ -137,80 +260,111 @@ func command_print(command):
 
 #   emit: emits a message onto the MessageBus
 func command_emit (command):
-	var mbus_signal = command[1].split(' ', true, 1)
-	match mbus_signal.size():
-		2:
-			debug_print_line("Message: " + String(mbus_signal) + "\n")
-			MessageBus.emit_signal(mbus_signal[0], mbus_signal[1])
-		1:
-			debug_print_line("Message: " + String(mbus_signal) + "\n")
-			MessageBus.emit_signal(mbus_signal[0])
-		0: debug_print_line( "Usage: raw_emit signal [value]\n")
+	if command.size() > 1:
+		var mbus_signal = command[1].split(' ', true, 1)
+		match mbus_signal.size():
+			2:
+				debug_print_line("Message: " + String(mbus_signal) + "\n")
+				MessageBus.emit_signal(mbus_signal[0], mbus_signal[1])
+			1:
+				debug_print_line("Message: " + String(mbus_signal) + "\n")
+				MessageBus.emit_signal(mbus_signal[0])
+			0: debug_print_line(get_usage(command[0]))
+	else:
+		debug_print_line(get_usage(command[0]))
 
 #   clear: clears the debug output
 func command_clear (_command):
 	emit_signal("clear_out");
 
-#   pwd: print the current working node's path
+#   pwd: print the present working node's path
 func command_pwd (_command):
 	debug_print_line(String(present_working_node.get_path()) + "\n")
-#   cd: change the current working node
+
+#   cd: change the present working node
 func command_cd (command):
 	if command.size() > 1:
 		var node = complete_path(command[1])
 		if node:
 			present_working_node = node
 		else:
-			debug_print_line ('cn: no such node: ' + command[1] + '\n')
+			debug_print_line (get_canonical(command[0]) + ': no such node: ' + command[1] + '\n')
 	else:
-		debug_print_line("")
-	pass
+		debug_print_line(get_usage(command[0]))
 
 #   help: Prints help dialogue
 func command_help (command):
 	if (command.size() == 1):
-		debug_print_line("Valid commands:\nhelp, start, stop, list, restart, print, emit, clear, pwn, cn\n")
+		debug_print_line("Valid commands:\n")
+		for key in commands:
+			debug_print_line(key[0] + " ")
+		debug_print_line("\n")
 	else:
-		debug_print_line(command[1])
-		match command[1]:
-			"start", "open", "o":
-				debug_print_line(" filename\nAliases: 'start', 'open', 'o'\n")
-				debug_print_line("Load add the scene filename.tscn as child\n")
-			"stop", "kill", "k":
-				debug_print_line(" name\nAliases: 'stop', 'kill', 'k'\n")
-				debug_print_line("Kill node with matching name\n")
-			"list", "ls", "l":
-				debug_print_line(" [path]\nAliases: 'list', 'ls', 'l'\n")
-				debug_print_line("List node children\n")
-			"restart", "killall":
-				debug_print_line("\nAliases: 'restart', 'killall'\n")
-				debug_print_line("Kill the current scene tree and plant a new Root.\n")
-			"print", "p":
-				debug_print_line(" string\nAliases: 'print', 'p'\n")
-				debug_print_line("Prints a string to the in-game debug console\n")
-			"raw_emit", "emit", "r", "e":
-				debug_print_line(" signal [message]\nAliases: 'raw_emit', 'emit', 'r', 'e'\n")
-				debug_print_line("Puts a message on the MessageBus without validation.\n")
-			"clear","cls":
-				debug_print_line("\nAliases: 'clear', 'cls'\n")
-				debug_print_line("Clears the debug output.\n")
-			"help", "h":
-				debug_print_line(" [command]\nAliases: 'help', 'h'\n")
-				debug_print_line("Prints information about a command.\n")
-			"pwd", "pwn":
-				debug_print_line("\nAliases: 'pwn', 'pwd'\n")
-				debug_print_line("Prints the Present Working Node.\n")
-			"cd", "cn":
-				debug_print_line(" path/to/node\nAliases: 'cn', 'cd'\n")
-				debug_print_line("Change the Present Working Node.\n")
-			_:
-				debug_print_line(command[1] + "\nIsn't a valid command\n")
+		var command_func = parse(command[1])
+		var aliases
+		var text
+		if command_func in helptext:
+			text = helptext[command_func]
+			aliases = lookup(command[1])
+			debug_print_line(command[1] + text[0] + ":\n  Aliases: " + String(aliases) + "\n  "+ text[1])
+		else:
+			debug_print_line(get_canonical(command[0]) + ": command not found: " + command[1] + "\n")
 
-# Completes a relative or absolute path, and returns the node it refers to
-func complete_path(path):
-	if path.is_rel_path(): # convert to absolute path
-		path = String(present_working_node.get_path()) + "/" + path
-	var node = get_node(path)
-	if node:
-		return node
-	return null
+#   exit: request program exit
+func command_exit(_command):
+	MessageBus.emit_signal("quit")
+
+#   call: call arbitrary member function of present working node
+func command_call(command):
+	if command.size() > 1:
+		var call_ret = null
+		var call_args = []
+		var call_cmd = command[1].split(' ', true, 1)
+		if call_cmd.size() > 1:
+			call_args = call_cmd[1].split(' ', false, 0)
+		if present_working_node.has_method(call_cmd[0]):
+			call_ret = present_working_node.callv(call_cmd[0], call_args)
+		else:
+			debug_print_line("We're sorry, but your call could not be completed as dialed.\n"
+			+ "Please hang up and try your call again.\n")
+			return
+		if (call_ret):
+			debug_print_line("'" + String(call_ret) + "'\n")
+		else:
+			debug_print_line("null\n")
+	else:
+		debug_print_line(get_usage(command[0]))
+
+func command_history(_command):
+	var lnum = 0
+	for line in history:
+		if line:
+			debug_print_line(String(lnum) + ": " + line + "\n")
+			lnum += 1
+	debug_print_line("history_pos = " + String(history_pos) + "\n")
+
+func command_perf(command):
+	if command.size() > 1:
+		var stat = perf(command[1])
+		if stat:
+			debug_print_line(String(stat) + "\n")
+		else:
+			debug_print_line("null\n")
+	else:
+		debug_print_line(get_usage(command[0]))
+
+func perf(attribute):
+	if attribute.is_valid_integer():
+		return Performance.get_monitor(int(attribute))
+	match attribute:
+		"fps":
+			return Performance.get_monitor(Performance.TIME_FPS)
+		"proctime":
+			return Performance.get_monitor(Performance.TIME_PROCESS)
+		"objects":
+			return Performance.get_monitor(Performance.OBJECT_COUNT)
+		"nodes":
+			return Performance.get_monitor(Performance.OBJECT_NODE_COUNT)
+		"resources":
+			return Performance.get_monitor(Performance.OBJECT_RESOURCE_COUNT)
+	return ""

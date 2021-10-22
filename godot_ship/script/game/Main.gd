@@ -7,6 +7,7 @@ var options
 var debug_menu
 
 var debug_enabled = true
+var start_fullscreen = false
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -24,7 +25,8 @@ func _ready():
 	options      = preload("res://scenes/Options.tscn")
 	debug_menu   = preload("res://scenes/Debug Menu.tscn")
 	# go fullscreen
-	OS.window_fullscreen = true
+	if start_fullscreen:
+		OS.window_fullscreen = true
 	if debug_enabled:
 		add_child(debug_menu.instance())
 
