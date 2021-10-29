@@ -1,10 +1,10 @@
 extends Control
 
 # Scenes
-var title_screen
-var gameplay
-var options
-var debug_menu
+onready var title_screen = preload("res://scenes/Title Screen.tscn")
+onready var gameplay     = preload("res://scenes/Gameplay.tscn"    )
+onready var options      = preload("res://scenes/Options.tscn"     )
+onready var debug_menu   = preload("res://scenes/Debug Menu.tscn"  )
 
 var debug_enabled = true
 var start_fullscreen = false
@@ -13,17 +13,12 @@ var start_fullscreen = false
 func _ready():
 	# Connect to signals
 	var _errno = 0;
-	_errno += MessageBus.connect("start_tcsn", self, "_on_scene_start_by_name")
-	_errno += MessageBus.connect("change_scene", self, "_on_scene_start")
-	_errno += MessageBus.connect("kill_scene",   self, "_on_scene_kill")
-	_errno += MessageBus.connect("list_scenes",  self, "_on_scene_list")
-	_errno += MessageBus.connect("quit",         self, "_on_quit_request")
-	_errno += MessageBus.connect("return_to_title", self, "_on_title_request")
-	# Create the scenes
-	title_screen = preload("res://scenes/Title Screen.tscn")
-	gameplay     = preload("res://scenes/Gameplay.tscn")
-	options      = preload("res://scenes/Options.tscn")
-	debug_menu   = preload("res://scenes/Debug Menu.tscn")
+	_errno += MessageBus.connect("start_tcsn"     , self, "_on_scene_start_by_name")
+	_errno += MessageBus.connect("change_scene"   , self, "_on_scene_start"        )
+	_errno += MessageBus.connect("kill_scene"     , self, "_on_scene_kill"         )
+	_errno += MessageBus.connect("list_scenes"    , self, "_on_scene_list"         )
+	_errno += MessageBus.connect("quit"           , self, "_on_quit_request"       )
+	_errno += MessageBus.connect("return_to_title", self, "_on_title_request"      )
 	# go fullscreen
 	if start_fullscreen:
 		OS.window_fullscreen = true

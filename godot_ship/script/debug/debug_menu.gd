@@ -141,18 +141,21 @@ func _on_LineEdit_text_entered(line):
 	debug_print_line("> ")
 
 # History_related helper functions:
+#   history_append: add a line of text to the history
+#     params: text: line of text (unparsed command) to add to history
+#     returns: void
 func history_append(text):
 	history.resize(history_pos + 2)
 	history[history_pos] = text
 	history_pos += 1
 
-func history_move(direction):
-	if history_pos + direction < 0:
-		pass
-	elif history_pos + direction >= history.size():
-		pass
-	else:
-		history_pos += direction;
+#   history_move: Traverse the history and update the user input box
+#     params: rel_pos: amount to move, relative to the current history_pos
+#     returns: void
+func history_move(rel_pos):
+	var new_pos = history_pos + rel_pos
+	if new_pos >= 0 and new_pos < history.size():
+		history_pos = new_pos;
 		if history[history_pos]:
 			emit_signal("history_event", history[history_pos])
 		else:
@@ -205,6 +208,8 @@ func get_canonical(alias):
 	return null
 
 #   get_usage: Construct the usage string for a command
+#     params: alias: alias of a command
+#     returns: usage string for the command, formatted for printing
 func get_usage(alias):
 	return "Usage: " + alias + helptext[parse(alias)][0] + "\n"
 
@@ -335,6 +340,7 @@ func command_call(command):
 	else:
 		debug_print_line(get_usage(command[0]))
 
+#   history: print the command history
 func command_history(_command):
 	var lnum = 0
 	for line in history:
@@ -343,6 +349,7 @@ func command_history(_command):
 			lnum += 1
 	debug_print_line("history_pos = " + String(history_pos) + "\n")
 
+#   perf: Print the value of a Godot Engine performance counter
 func command_perf(command):
 	if command.size() > 1:
 		var stat = perf(command[1])
