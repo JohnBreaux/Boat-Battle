@@ -74,7 +74,7 @@ __meta__ = {
 }
 
 [node name="Volume Setting" type="Node2D" parent="Sliders"]
-position = Vector2( 0, 24 )
+position = Vector2( 0, 33 )
 
 [node name="Volume Label" type="Label" parent="Sliders/Volume Setting"]
 margin_top = -8.0
@@ -106,9 +106,9 @@ __meta__ = {
 
 [node name="Buttons" type="HBoxContainer" parent="."]
 margin_left = 216.0
-margin_top = 160.0
+margin_top = 190.0
 margin_right = 424.0
-margin_bottom = 184.0
+margin_bottom = 214.0
 __meta__ = {
 "_edit_lock_": true,
 "_edit_use_anchors_": false
