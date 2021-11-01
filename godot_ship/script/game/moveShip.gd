@@ -24,10 +24,9 @@ func _input(event):
 		if held and not event.pressed:
 			held = false;
 			if (position.x > 17.4 and position.x < 337.5) and (position.y > 20.2 and position.y < 335.5):
-				position = position.snapped(Vector2(32, 32)) + Vector2(2, 2)
+				position = position.snapped(Vector2(32, 32)) + Vector2(4, 4)
 			else:
 				position = originalPos
-				
 			
 	if event is InputEventMouseMotion and held:
 		if snapOriginalPos == false:
