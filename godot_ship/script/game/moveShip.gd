@@ -6,6 +6,7 @@ extends RigidBody2D
 var held = false
 var originalPos
 var snapOriginalPos = false
+var vertical = true
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -27,6 +28,69 @@ func _input(event):
 			else:
 				if originalPos != null:
 					position = originalPos
+					rotation = 0
+					vertical = true
+			
+			# 2-Ship
+			if (get_parent().get_node("2Ship").rotation_degrees == 0):
+				if (get_parent().get_node("2Ship").position.y > 308):
+					position = originalPos
+					rotation = 0
+					vertical = true
+			if (get_parent().get_node("2Ship").rotation_degrees == -90):
+				if (get_parent().get_node("2Ship").position.x > 308):
+					position = originalPos
+					rotation = 0
+					vertical = true
+			
+			# 3-Ship A
+			if (get_parent().get_node("3ShipA").rotation_degrees == 0):
+				if (get_parent().get_node("3ShipA").position.y > 308) or (get_parent().get_node("3ShipA").position.y < 52):
+					position = originalPos
+					rotation = 0
+					vertical = true
+			if (get_parent().get_node("3ShipA").rotation_degrees == -90):
+				if (get_parent().get_node("3ShipA").position.x > 308) or (get_parent().get_node("3ShipA").position.x < 52):
+					position = originalPos
+					rotation = 0
+					vertical = true
+			
+			# 3-Ship B
+			if (get_parent().get_node("3ShipB").rotation_degrees == 0):
+				if (get_parent().get_node("3ShipB").position.y > 308) or (get_parent().get_node("3ShipB").position.y < 52):
+					position = originalPos
+					rotation = 0
+					vertical = true
+			if (get_parent().get_node("3ShipB").rotation_degrees == -90):
+				if (get_parent().get_node("3ShipB").position.x > 308) or (get_parent().get_node("3ShipB").position.x < 52):
+					position = originalPos
+					rotation = 0
+					vertical = true
+					
+			# 4-Ship
+			if (get_parent().get_node("4Ship").rotation_degrees == 0):
+				if (get_parent().get_node("4Ship").position.y > 276.8) or (get_parent().get_node("4Ship").position.y < 52):
+					position = originalPos
+					rotation = 0
+					vertical = true
+			if (get_parent().get_node("4Ship").rotation_degrees == -90):
+				if (get_parent().get_node("4Ship").position.x > 276.8) or (get_parent().get_node("4Ship").position.x < 52):
+					position = originalPos
+					rotation = 0
+					vertical = true
+					
+			# 5-Ship
+			if (get_parent().get_node("5Ship").rotation_degrees == 0):
+				if (get_parent().get_node("5Ship").position.y > 276.8) or (get_parent().get_node("5Ship").position.y < 84.8):
+					position = originalPos
+					rotation = 0
+					vertical = true
+			if (get_parent().get_node("5Ship").rotation_degrees == -90):
+				if (get_parent().get_node("5Ship").position.x > 276.8) or (get_parent().get_node("5Ship").position.x < 84.8):
+					position = originalPos
+					rotation = 0
+					vertical = true
+					
 			
 	if event is InputEventMouseMotion and held:
 		if snapOriginalPos == false:
@@ -36,7 +100,12 @@ func _input(event):
 		
 	if event.is_action_pressed("ui_rotate"):
 		if(event.position - position).length() < click_radius:
-			rotate(PI/2);
+			if vertical == true:
+				rotate(-PI/2)
+				vertical = false
+			else:
+				rotate(PI/2)
+				vertical = true
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta):
 #	pass
