@@ -18,7 +18,7 @@ config/icon="res://icon.png"
 
 MessageBus="*res://script/game/Message Bus.gd"
 OptionsController="*res://script/options/OptionsController.gd"
-AudioController="*res://scenes/AudioController.tscn"
+AudioController="*res://scenes/BackgroundMusic.tscn"
 
 [display]
 
