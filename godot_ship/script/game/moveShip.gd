@@ -110,58 +110,70 @@ func _input(event):
 		# 2-Ship
 		if (get_parent().get_node("2Ship").rotation_degrees == 0):
 			if (get_parent().get_node("2Ship").position.y > 308):
-				position.y -= 32
+				get_parent().get_node("2Ship").position.y -= 32
 		if (get_parent().get_node("2Ship").rotation_degrees == -90):
 			if (get_parent().get_node("2Ship").position.x > 308):
-				position.x -= 32
+				get_parent().get_node("2Ship").position.x -= 32
 		
 		# 3-Ship A
 		if (get_parent().get_node("3ShipA").rotation_degrees == 0):
 			if (get_parent().get_node("3ShipA").position.y > 308):
-				position.y -= 32
+				get_parent().get_node("3ShipA").position.y -= 32
 			if (get_parent().get_node("3ShipA").position.y < 52):
-				position.y += 32
+				get_parent().get_node("3ShipA").position.y += 32
 		if (get_parent().get_node("3ShipA").rotation_degrees == -90):
 			if (get_parent().get_node("3ShipA").position.x > 308):
-				position.x -= 32
+				get_parent().get_node("3ShipA").position.x -= 32
 			if (get_parent().get_node("3ShipA").position.x < 52):
-				position.x += 32
+				get_parent().get_node("3ShipA").position.x += 32
 		
 		# 3-Ship B
 		if (get_parent().get_node("3ShipB").rotation_degrees == 0):
 			if (get_parent().get_node("3ShipB").position.y > 308):
-				position.y -= 32
+				get_parent().get_node("3ShipB").position.y -= 32
 			if (get_parent().get_node("3ShipB").position.y < 52):
-				position.y += 32
+				get_parent().get_node("3ShipB").position.y += 32
 		if (get_parent().get_node("3ShipB").rotation_degrees == -90):
 			if (get_parent().get_node("3ShipB").position.x > 308):
-				position.x -= 32
+				get_parent().get_node("3ShipB").position.x -= 32
 			if (get_parent().get_node("3ShipB").position.x < 52):
-				position.x += 32
+				get_parent().get_node("3ShipB").position.x += 32
 				
 		# 4-Ship
 		if (get_parent().get_node("4Ship").rotation_degrees == 0):
 			if (get_parent().get_node("4Ship").position.y > 276.8):
-				position.y -= 64
+				get_parent().get_node("4Ship").position.y -= 32
+				if (get_parent().get_node("4Ship").position.y > 308.8):
+					get_parent().get_node("4Ship").position.y -= 32
 			if (get_parent().get_node("4Ship").position.y < 52):
-				position.y += 32
+				get_parent().get_node("4Ship").position.y += 32
 		if (get_parent().get_node("4Ship").rotation_degrees == -90):
 			if (get_parent().get_node("4Ship").position.x > 276.8):
-				position.x -= 64
+				get_parent().get_node("4Ship").position.x -= 32
+				if (get_parent().get_node("4Ship").position.y > 308.8):
+					get_parent().get_node("4Ship").position.x -= 32
 			if (get_parent().get_node("4Ship").position.x < 52):
-				position.x += 32
+				get_parent().get_node("4Ship").position.x += 32
 				
 		# 5-Ship
 		if (get_parent().get_node("5Ship").rotation_degrees == 0):
 			if (get_parent().get_node("5Ship").position.y > 276.8):
-				position.y -= 64
+				get_parent().get_node("5Ship").position.y -= 32
+				if (get_parent().get_node("5Ship").position.y > 308.8):
+					get_parent().get_node("5Ship").position.y -= 32
 			if (get_parent().get_node("5Ship").position.y < 84.8):
-				position.y += 64
+				get_parent().get_node("5Ship").position.y += 32
+				if (get_parent().get_node("5Ship").position.y < 52):
+					get_parent().get_node("5Ship").position.y += 32
 		if (get_parent().get_node("5Ship").rotation_degrees == -90):
 			if (get_parent().get_node("5Ship").position.x > 276.8):
-				position.x -= 64
+				get_parent().get_node("5Ship").position.x -= 32
+				if (get_parent().get_node("5Ship").position.x > 308.8):
+					get_parent().get_node("5Ship").position.x -= 32
 			if (get_parent().get_node("5Ship").position.x < 84.8):
-				position.x += 64
+				get_parent().get_node("5Ship").position.x += 32
+				if (get_parent().get_node("5Ship").position.x < 52):
+					get_parent().get_node("5Ship").position.x += 32
 		
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta):
