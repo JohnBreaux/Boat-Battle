@@ -7,27 +7,27 @@ onready var theme_buttons = find_node("Buttons", true, true).get_children()
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	OptionsController.load_options()
 	find_next_valid_focus().grab_focus()
 	sound_slider.value = OptionsController.get_sfx_volume()
 	music_slider.value = OptionsController.get_mus_volume()
-
 
 func _on_Button_pressed():
 	queue_free()
 #	MessageBus.emit_signal("change_scene", "Title")
 
-
 func _on_SFX_Slider_value_changed(value):
 	OptionsController.set_sfx_vol(value)
-
+	OptionsController.save_options()
 
 func _on_Volume_Slider_value_changed(value):
 	OptionsController.set_mus_vol(value)
-
+	OptionsController.save_options()
 
 func _on_Light_pressed():
 	OptionsController.set_theme("light")
-
+	OptionsController.save_options()
 
 func _on_Dark_pressed():
 	OptionsController.set_theme("dark")
+	OptionsController.save_options()

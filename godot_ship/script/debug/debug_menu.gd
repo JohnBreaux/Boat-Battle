@@ -1,10 +1,7 @@
 extends Control
 
-var debug_output
-var debug_line = 0
 
 var debug_canvas
-var debug_transform
 
 var debug_active = false
 var menu_position = 0.0
@@ -19,22 +16,24 @@ var helptext = {
 	"command_help":    [" [command]",        "Print information about command.\n"                       ],
 	"command_history": ["",                  "Print the history log.\n"                                 ],
 	"command_perf":    [" stat",             "Print performance info (fps, nodes, proctime, ... )\n"    ],
-	
+
 	"command_list":    [" [path]",           "List children of path, or of present working node.\n"     ],
 	"command_start":   [" filename",         "Load PackedScene filename.tscn as child.\n"               ],
 	"command_kill":    [" name",             "Kill child node with matching name.\n"                    ],
-	
+
 	"command_pwd":     ["",                  "Print the Present Working Node.\n"                        ],
 	"command_cd":      [" path",             "Change the Present Working Node to path.\n"               ],
-	
+
 	"command_print":   [" string",           "Print string to the in-game debug console.\n"             ],
 	"command_clear":   ["",                  "Clear the debug output.\n"                                ],
-	
+
 	"command_emit":    [" signal [message]", "Emit a message on MessageBus.signal without validation.\n"],
 	"command_call":    [" func [args ...]",  "Call func(...) with arguments args.\n"                    ],
-	
+
 	"command_restart": ["",                  "Kill the current scene tree and plant a new Root.\n"      ],
 	"command_exit":    ["",                  "Quits the program.\n"                                     ],
+
+	"command_empty":   ["",                  "No Operation.\n"                                          ],
 }
 
 # List of debug commands accessed by alias
@@ -44,23 +43,25 @@ var commands = {
 	["help", "h"]:                  "command_help",
 	["hist", "history"]:            "command_history",
 	["perf", "performance"]:        "command_perf",
-	
+
 	["list", "ls", "l"]:            "command_list",
 	["start", "open", "o"]:         "command_start",
 	["kill", "stop", "k"]:          "command_kill",
-	
+
 	["pwd", "pwn"]:                 "command_pwd",
 	["cd", "cn"]:                   "command_cd",
-	
+
 	["print", "p"]:                 "command_print",
 	["clear","cls"]:                "command_clear",
-	
+
 	["emit", "e"]:                  "command_emit",
 	["call", "func"]:               "command_call",
-	
+
 	["restart", "killall"]:         "command_restart",
 	["exit", "quit"]:               "command_exit",
-	}
+
+	[""]:                           "command_empty"
+}
 
 onready var present_working_node = get_node("/root/Main")
 
@@ -84,8 +85,6 @@ signal history_event(text)
 #     returns: void
 func _ready():
 	debug_canvas = get_node("debug_canvas")
-	debug_transform = debug_canvas.get_transform()
-	debug_output = get_node("debug_canvas/VBoxContainer/TextEdit")
 	command_help([""])
 	debug_print_line("> ")
 
@@ -129,7 +128,8 @@ func _input(event):
 #     params: line: Line of text entered by user
 #     returns: void
 func _on_LineEdit_text_entered(line):
-	history_append(line)
+	if line != "":
+		history_append(line)
 	emit_signal("clear_in")
 	debug_print_line(line + "\n")
 	var command = line.split(' ', true, 1)
@@ -147,6 +147,7 @@ func _on_LineEdit_text_entered(line):
 func history_append(text):
 	history.resize(history_pos + 2)
 	history[history_pos] = text
+	history[history_pos + 1] = ""
 	history_pos += 1
 
 #   history_move: Traverse the history and update the user input box
@@ -220,7 +221,7 @@ func command_start (command):
 	if command.size() > 1:
 		var pack = load("res://scenes/" + command[1] + ".tscn");
 		present_working_node.add_child(pack.instance());
-		debug_print_line("start '" + command[1] + "'\n")
+		debug_print_line("started '" + command[1] + "'\n")
 	else:
 		debug_print_line(get_usage(command[0]))
 
@@ -333,8 +334,8 @@ func command_call(command):
 			debug_print_line("We're sorry, but your call could not be completed as dialed.\n"
 			+ "Please hang up and try your call again.\n")
 			return
-		if (call_ret):
-			debug_print_line("'" + String(call_ret) + "'\n")
+		if (call_ret != null):
+			debug_print_line(String(call_ret) + "\n")
 		else:
 			debug_print_line("null\n")
 	else:
@@ -347,7 +348,7 @@ func command_history(_command):
 		if line:
 			debug_print_line(String(lnum) + ": " + line + "\n")
 			lnum += 1
-	debug_print_line("history_pos = " + String(history_pos) + "\n")
+	#debug_print_line("history_pos = " + String(history_pos) + "\n")
 
 #   perf: Print the value of a Godot Engine performance counter
 func command_perf(command):
@@ -375,3 +376,7 @@ func perf(attribute):
 		"resources":
 			return Performance.get_monitor(Performance.OBJECT_RESOURCE_COUNT)
 	return ""
+
+#   empty: No command
+func command_empty(_command):
+	pass
