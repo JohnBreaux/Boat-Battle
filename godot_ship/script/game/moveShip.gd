@@ -22,7 +22,7 @@ func _input(event):
 				
 		if held and not event.pressed:
 			held = false;
-			position = position.snapped(Vector2(32, 32)) + Vector2(2, 2)
+			position = position.snapped(Vector2(32, 32)) + Vector2(4, 4)
 			
 	if event is InputEventMouseMotion and held:
 		position = event.position;
