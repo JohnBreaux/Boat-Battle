@@ -5,17 +5,21 @@ func _ready():
 	$VBoxContainer/Singleplayer.grab_focus()
 
 func _on_Singleplayer_pressed():
+	$ButtonSFX.play()
 	MessageBus.emit_signal("change_scene", "Singleplayer")
 	queue_free()
 
 func _on_Multiplayer_pressed():
+	$ButtonSFX.play()
 	MessageBus.emit_signal("change_scene", "Multiplayer")
 	queue_free()
 
 func _on_Options_pressed():
+	$ButtonSFX.play()
 	MessageBus.emit_signal("change_scene", "Options")
 	queue_free()
 
 func _on_Quit_pressed():
+	$ButtonSFX.play()
 	MessageBus.emit_signal("quit")
 	queue_free()

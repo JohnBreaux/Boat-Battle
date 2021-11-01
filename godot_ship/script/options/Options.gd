@@ -13,21 +13,28 @@ func _ready():
 	music_slider.value = OptionsController.get_mus_volume()
 
 func _on_Button_pressed():
+	$ButtonSFX.play()
 	queue_free()
 #	MessageBus.emit_signal("change_scene", "Title")
 
 func _on_SFX_Slider_value_changed(value):
 	OptionsController.set_sfx_vol(value)
 	OptionsController.save_options()
+	if !$ButtonSFX.is_playing():
+		$ButtonSFX.play()
 
 func _on_Volume_Slider_value_changed(value):
 	OptionsController.set_mus_vol(value)
 	OptionsController.save_options()
+	if !$ButtonSFX.is_playing():
+		$ButtonSFX.play()
 
 func _on_Light_pressed():
 	OptionsController.set_theme("light")
 	OptionsController.save_options()
+	$ButtonSFX.play()
 
 func _on_Dark_pressed():
 	OptionsController.set_theme("dark")
 	OptionsController.save_options()
+	$ButtonSFX.play()
