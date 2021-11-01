@@ -42,7 +42,7 @@ func _process(_delta):
 
 # Creates a new instance of each menu scene
 func _on_scene_start(scene):
-	print ("_on_scene_start(",scene,")")
+	#print ("_on_scene_start(",scene,")")
 	match scene:
 		"Singleplayer": 
 			add_child (gameplay.instance())

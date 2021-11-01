@@ -333,8 +333,8 @@ func command_call(command):
 			debug_print_line("We're sorry, but your call could not be completed as dialed.\n"
 			+ "Please hang up and try your call again.\n")
 			return
-		if (call_ret):
-			debug_print_line("'" + String(call_ret) + "'\n")
+		if (call_ret != null):
+			debug_print_line(String(call_ret) + "\n")
 		else:
 			debug_print_line("null\n")
 	else:

@@ -14,7 +14,7 @@ var mus_vol = 100
 var sfx_vol = 100
 
 func _ready():
-	pass
+	load_options()
 
 # Setters
 func set_theme(theme_name):
