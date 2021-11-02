@@ -25,7 +25,7 @@ func _input(event):
 				
 		if held and not event.pressed:
 			held = false;
-			if (position.x > 17.4 and position.x < 337.5) and (position.y > 20.2 and position.y < 335.5):
+			if (position.x > 17.4 and position.x < 335.5) and (position.y > 20.2 and position.y < 335.5):
 				position = position.snapped(Vector2(32, 32)) + Vector2(4, 4)
 			else:
 				if originalPos != null:
@@ -115,7 +115,7 @@ func _input(event):
 					rotate(PI/2)
 					vertical = true
 		
-		if(position.x > 17.4 and position.x < 337.5) and (position.y > 20.2 and position.y < 335.5):
+		if(position.x > 17.4 and position.x < 335.5) and (position.y > 20.2 and position.y < 335.5):
 			# 2-Ship
 			if (get_parent().get_node("2Ship").rotation_degrees == 0):
 				if (get_parent().get_node("2Ship").position.y > 308):
