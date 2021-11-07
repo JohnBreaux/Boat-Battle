@@ -101,6 +101,8 @@ func _input(event):
 		position = event.position;
 		
 	if event.is_action_pressed("ui_rotate"):
+		if held:
+			return
 		if checkOriginalPos():
 			return
 		else:
