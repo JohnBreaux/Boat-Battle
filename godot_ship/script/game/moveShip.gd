@@ -21,6 +21,7 @@ func _input(event):
 	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT:
 		if (event.position - position).length() < click_radius:
 			if not held and event.pressed:
+				AudioBus.emit_signal("button_clicked")
 				held = true;
 				
 		if held and not event.pressed:
@@ -106,6 +107,7 @@ func _input(event):
 		if checkOriginalPos():
 			return
 		else:
+			AudioBus.emit_signal("button_clicked")
 			if originalPos == null:
 				if position == originalPos:
 					return
@@ -194,12 +196,14 @@ func _input(event):
 #	pass
 
 func pickup():
+	#AudioBus.emit_signal("button_clicked")
 	if held:
 		return
 	mode = RigidBody2D.MODE_STATIC
 	held = true
 
 func drop(impulse=Vector2.ZERO):
+	#AudioBus.emit_signal("button_clicked")
 	if held:
 		mode = RigidBody2D.MODE_RIGID
 		apply_central_impulse(impulse)
