@@ -4,6 +4,7 @@ extends Control
 var debug_canvas
 
 var debug_active = false
+var menu_moving = false
 var menu_position = 0.0
 var menu_velocity = 4
 
@@ -104,6 +105,7 @@ signal history_event(text)
 #     returns: void
 func _ready():
 	debug_canvas = get_node("debug_canvas")
+	debug_canvas.set_transform(menu_hidden) #initialize the debug menu as hidden
 	command_help([""])
 	debug_print_line("> ")
 
@@ -114,16 +116,21 @@ func _process(delta):
 	if (debug_active && menu_position < 1):
 		# Move the menu down
 		menu_position += menu_velocity * delta;
+		menu_moving = true
 		$debug_canvas/VBoxContainer/LineEdit.grab_focus()
 	elif (!debug_active && menu_position > 0):
 		# Move the menu up
 		menu_position -= menu_velocity * delta;
+		menu_moving = true
 		# Clear the input box
 		emit_signal("clear_in")
-	else:
+	elif (menu_position < 0 || menu_position > 1):
 		menu_position = round(menu_position)
-	
-	debug_canvas.set_transform(menu_hidden.interpolate_with(menu_active, menu_position))
+		menu_moving = true
+	else:
+		menu_moving = false
+	if menu_moving:
+		debug_canvas.set_transform(menu_hidden.interpolate_with(menu_active, menu_position))
 
 #   _input: Process user input related to the debug menu
 #     params: event: The input event which triggered _input call

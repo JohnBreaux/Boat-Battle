@@ -6,6 +6,7 @@ onready var gameplay     = preload("res://scenes/Gameplay.tscn"    )
 onready var options      = preload("res://scenes/Options.tscn"     )
 onready var debug_menu   = preload("res://scenes/Debug Menu.tscn"  )
 
+var power_saving = true
 var debug_enabled = true
 var start_fullscreen = false
 
@@ -20,6 +21,9 @@ func _ready():
 	_errno += MessageBus.connect("quit"           , self, "_on_quit_request"       )
 	_errno += MessageBus.connect("return_to_title", self, "_on_title_request"      )
 	# go fullscreen
+	if power_saving:
+		OS.low_processor_usage_mode = true
+		OS.low_processor_usage_mode_sleep_usec = 6800
 	if start_fullscreen:
 		OS.window_fullscreen = true
 	if debug_enabled:
