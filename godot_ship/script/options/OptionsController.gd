@@ -22,15 +22,28 @@ func set_theme(theme_name):
 			theme = String(theme_name)
 			save_options()
 			emit_signal("change_theme", theme)
-func set_mas_vol(volume):
-	mas_vol = volume
-	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("Master"), mas_vol)
-func set_mus_vol(volume):
-	mus_vol = volume
-	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("BGM"), mus_vol)
-func set_sfx_vol(volume):
-	sfx_vol = volume
-	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("SFX"), sfx_vol)
+	save_options()
+func set_vol(volume, type):
+	if type == "mas_vol":
+		mas_vol = volume
+		AudioServer.set_bus_volume_db(AudioServer.get_bus_index("Master"), mas_vol)
+	elif type == "mus_vol":
+		mus_vol = volume
+		AudioServer.set_bus_volume_db(AudioServer.get_bus_index("BGM"), mus_vol)
+	elif type == "sfx_vol":
+		sfx_vol = volume
+		AudioServer.set_bus_volume_db(AudioServer.get_bus_index("SFX"), sfx_vol)
+	save_options()
+	
+#func set_mas_vol(volume):
+#	mas_vol = volume
+#	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("Master"), mas_vol)
+#func set_mus_vol(volume):
+#	mus_vol = volume
+#	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("BGM"), mus_vol)
+#func set_sfx_vol(volume):
+#	sfx_vol = volume
+#	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("SFX"), sfx_vol)
 
 #Option Save File
 func save_options():

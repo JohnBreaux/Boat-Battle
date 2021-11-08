@@ -21,25 +21,20 @@ func _on_Button_pressed():
 
 func _on_Master_Slider_value_changed(value):
 	AudioBus.emit_signal("button_clicked")
-	OptionsController.set_mas_vol(value)
-	OptionsController.save_options()
+	OptionsController.set_vol(value, "mas_vol")
 
 func _on_Music_Slider_value_changed(value):
 	AudioBus.emit_signal("button_clicked")
-	OptionsController.set_mus_vol(value)
-	OptionsController.save_options()
+	OptionsController.set_vol(value, "mus_vol")
 
 func _on_SFX_Slider_value_changed(value):
 	AudioBus.emit_signal("button_clicked")
-	OptionsController.set_sfx_vol(value)
-	OptionsController.save_options()
+	OptionsController.set_vol(value, "sfx_vol")
 
 func _on_Light_pressed():
 	AudioBus.emit_signal("button_clicked")
 	OptionsController.set_theme("light")
-	OptionsController.save_options()
 
 func _on_Dark_pressed():
 	AudioBus.emit_signal("button_clicked")
 	OptionsController.set_theme("dark")
-	OptionsController.save_options()
