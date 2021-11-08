@@ -8,7 +8,7 @@ var menu_moving = false
 var menu_position = 0.0
 var menu_velocity = 4
 
-var history = []
+var history : Array = []
 var history_pos = 0
 
 onready var expression = Expression.new()
@@ -77,11 +77,13 @@ var commands = {
 }
 
 #List of all of Godot's builtin types
-var types = ["nil", "bool","int","float","String","Vector2","Rect2",
-			 "Vector3","Transform2D","Plane","Quat","AABB","Basis","Transform",
-			 "Color","NodePath","RID","Object","Dictionary","Array","PoolByteArray",
-			 "PoolIntArray","PoolRealArray","PoolStringArray","PoolVector2Array",
-			 "PoolVector3Array","PoolColorAray"]
+const types:Array = [
+	"nil", "bool","int","float","String","Vector2","Rect2",
+	"Vector3","Transform2D","Plane","Quat","AABB","Basis","Transform",
+	"Color","NodePath","RID","Object","Dictionary","Array","PoolByteArray",
+	"PoolIntArray","PoolRealArray","PoolStringArray","PoolVector2Array",
+	"PoolVector3Array","PoolColorAray"
+]
 
 onready var present_working_node = get_node("/root/Main")
 
@@ -455,13 +457,23 @@ func command_exec(command):
 
 #   listprops: list properties (variables) of present working node
 func command_listprops(_command):
+	var props = ""
 	var proplist = present_working_node.get_property_list()
-	debug_print_line(String(proplist) + "\n")
+	proplist.sort_custom(self, "propSort")
+	for prop in proplist:
+		if prop["name"]:
+			props += "" + types[prop["type"]] + " " + prop["name"] + "\n"
+		pass
+	debug_print_line(props)
 	pass
+func propSort(a, b):
+	if a["type"] == b["type"]:
+		return a["name"] < b["name"]
+	return types[a["type"]].to_lower() < types[b["type"]].to_lower()
 
 #   getprop: get the value of a named property of the present working node
 func command_getprop(command):
-	if command.size() > 1 && command[1].is_valid_identifier():
+	if command.size() > 1:
 		var res = present_working_node.get(command[1])
 		debug_print_line(variant_to_string(res) + "\n")
 	else:
