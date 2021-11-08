@@ -42,22 +42,23 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="SFX Setting" type="Node2D" parent="Sliders"]
+[node name="Master Volume Setting" type="Node2D" parent="Sliders"]
 position = Vector2( 0, 8 )
 
-[node name="SFX Label" type="Label" parent="Sliders/SFX Setting"]
+[node name="Master Label" type="Label" parent="Sliders/Master Volume Setting"]
+margin_left = -0.140289
 margin_top = -8.0
-margin_right = 64.0
+margin_right = 63.8597
 margin_bottom = 8.0
 custom_colors/font_color = Color( 0, 0, 0, 1 )
-text = "SFX:"
+text = "Volume:"
 align = 2
 valign = 1
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="SFX Slider" type="HSlider" parent="Sliders/SFX Setting"]
+[node name="Master Slider" type="HSlider" parent="Sliders/Master Volume Setting"]
 margin_left = 64.0
 margin_top = -8.0
 margin_right = 208.0
@@ -69,27 +70,28 @@ focus_next = NodePath("../../Volume Setting/Volume Slider")
 focus_previous = NodePath("../../../Back")
 min_value = -25.0
 max_value = 0.0
-tick_count = 11
+tick_count = 10
+ticks_on_borders = true
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Volume Setting" type="Node2D" parent="Sliders"]
+[node name="Music Volume Setting" type="Node2D" parent="Sliders"]
 position = Vector2( 0, 33 )
 
-[node name="Volume Label" type="Label" parent="Sliders/Volume Setting"]
+[node name="Music Label" type="Label" parent="Sliders/Music Volume Setting"]
 margin_top = -8.0
 margin_right = 64.0
 margin_bottom = 8.0
 custom_colors/font_color = Color( 0, 0, 0, 1 )
-text = "Volume:"
+text = "Music:"
 align = 2
 valign = 1
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Volume Slider" type="HSlider" parent="Sliders/Volume Setting"]
+[node name="Music Slider" type="HSlider" parent="Sliders/Music Volume Setting"]
 margin_left = 64.0
 margin_top = -8.0
 margin_right = 208.0
@@ -100,7 +102,34 @@ focus_next = NodePath("../../../Buttons/Dark")
 focus_previous = NodePath("../../SFX Setting/SFX Slider")
 min_value = -50.0
 max_value = 0.0
-tick_count = 11
+tick_count = 10
+ticks_on_borders = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="SFX Volume Setting" type="Node2D" parent="Sliders"]
+
+[node name="SFX Label" type="Label" parent="Sliders/SFX Volume Setting"]
+margin_top = 48.0
+margin_right = 64.0
+margin_bottom = 64.0
+custom_colors/font_color = Color( 0, 0, 0, 1 )
+text = "SFX:"
+align = 2
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="SFX Slider" type="HSlider" parent="Sliders/SFX Volume Setting"]
+margin_left = 64.0
+margin_top = 48.0
+margin_right = 208.0
+margin_bottom = 64.0
+min_value = -50.0
+max_value = 0.0
+tick_count = 10
 ticks_on_borders = true
 __meta__ = {
 "_edit_use_anchors_": false
@@ -108,9 +137,9 @@ __meta__ = {
 
 [node name="Buttons" type="HBoxContainer" parent="."]
 margin_left = 216.0
-margin_top = 190.0
+margin_top = 200.0
 margin_right = 424.0
-margin_bottom = 214.0
+margin_bottom = 224.0
 __meta__ = {
 "_edit_lock_": true,
 "_edit_use_anchors_": false
@@ -155,8 +184,9 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[connection signal="value_changed" from="Sliders/SFX Setting/SFX Slider" to="." method="_on_SFX_Slider_value_changed"]
-[connection signal="value_changed" from="Sliders/Volume Setting/Volume Slider" to="." method="_on_Volume_Slider_value_changed"]
+[connection signal="value_changed" from="Sliders/Master Volume Setting/Master Slider" to="." method="_on_Master_Slider_value_changed"]
+[connection signal="value_changed" from="Sliders/Music Volume Setting/Music Slider" to="." method="_on_Music_Slider_value_changed"]
+[connection signal="value_changed" from="Sliders/SFX Volume Setting/SFX Slider" to="." method="_on_SFX_Slider_value_changed"]
 [connection signal="pressed" from="Buttons/Light" to="." method="_on_Light_pressed"]
 [connection signal="pressed" from="Buttons/Dark" to="." method="_on_Dark_pressed"]
 [connection signal="pressed" from="Back" to="." method="_on_Button_pressed"]

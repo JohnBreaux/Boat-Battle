@@ -8,6 +8,7 @@ signal change_theme (theme)
 var f = File.new()
 var options_file = "user://options.save"
 var theme = "dark"
+var mas_vol = 0
 var mus_vol = 0
 var sfx_vol = 0
 
@@ -19,7 +20,11 @@ func set_theme(theme_name):
 	match theme_name:
 		"dark","light":
 			theme = String(theme_name)
+			save_options()
 			emit_signal("change_theme", theme)
+func set_mas_vol(volume):
+	mas_vol = volume
+	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("Master"), mas_vol)
 func set_mus_vol(volume):
 	mus_vol = volume
 	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("BGM"), mus_vol)
@@ -31,6 +36,7 @@ func set_sfx_vol(volume):
 func save_options():
 	f.open(options_file, File.WRITE)
 	f.store_var(theme)
+	f.store_var(mas_vol)
 	f.store_var(mus_vol)
 	f.store_var(sfx_vol)
 	f.close()
@@ -38,15 +44,19 @@ func load_options():
 	if f.file_exists(options_file):
 		f.open(options_file, File.READ)
 		theme = f.get_var()
+		mas_vol = f.get_var()
 		mus_vol = f.get_var()
 		sfx_vol = f.get_var()
 		f.close()
+		AudioServer.set_bus_volume_db(AudioServer.get_bus_index("Master"), mus_vol)
 		AudioServer.set_bus_volume_db(AudioServer.get_bus_index("BGM"), mus_vol)
 		AudioServer.set_bus_volume_db(AudioServer.get_bus_index("SFX"), sfx_vol)
 
 # Getters
 func get_theme():
 	return theme
+func get_mas_volume():
+	return mas_vol
 func get_mus_volume():
 	return mus_vol
 func get_sfx_volume():
