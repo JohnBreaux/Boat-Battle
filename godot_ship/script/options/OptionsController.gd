@@ -24,7 +24,7 @@ func set_theme(theme_name):
 			emit_signal("change_theme", theme)
 func set_mus_vol(volume):
 	mus_vol = volume
-	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("Master"), mus_vol)
+	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("BGM"), mus_vol)
 	emit_signal("change_mus_volume", mus_vol)
 func set_sfx_vol(volume):
 	sfx_vol = volume
@@ -44,7 +44,7 @@ func load_options():
 		mus_vol = f.get_var()
 		sfx_vol = f.get_var()
 		f.close()
-		AudioServer.set_bus_volume_db(AudioServer.get_bus_index("Master"), mus_vol)
+		AudioServer.set_bus_volume_db(AudioServer.get_bus_index("BGM"), mus_vol)
 
 # Getters
 func get_theme():
