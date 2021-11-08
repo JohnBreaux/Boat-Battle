@@ -10,30 +10,37 @@ var menu_velocity = 4
 var history = []
 var history_pos = 0
 
+onready var expression = Expression.new()
+
 # helptext: args list and help blurb accessed by function name
 var helptext = {
-#	command_id         [args                 "Help text"                                                ]
-	"command_help":    [" [command]",        "Print information about command.\n"                       ],
-	"command_history": ["",                  "Print the history log.\n"                                 ],
-	"command_perf":    [" stat",             "Print performance info (fps, nodes, proctime, ... )\n"    ],
+#	command_id               [args                 "Help text"                                                ]
+	"command_help":          [" [command]",        "Print information about command.\n"                       ],
+	"command_history":       ["",                  "Print the history log.\n"                                 ],
+	"command_perf":          [" stat",             "Print performance info (fps, nodes, proctime, ... )\n"    ],
 
-	"command_list":    [" [path]",           "List children of path, or of present working node.\n"     ],
-	"command_start":   [" filename",         "Load PackedScene filename.tscn as child.\n"               ],
-	"command_kill":    [" name",             "Kill child node with matching name.\n"                    ],
+	"command_list":          [" [path]",           "List children of path, or of present working node.\n"     ],
+	"command_start":         [" filename",         "Load PackedScene filename.tscn as child.\n"               ],
+	"command_kill":          [" name",             "Kill child node with matching name.\n"                    ],
 
-	"command_pwd":     ["",                  "Print the Present Working Node.\n"                        ],
-	"command_cd":      [" path",             "Change the Present Working Node to path.\n"               ],
+	"command_pwd":           ["",                  "Print the Present Working Node.\n"                        ],
+	"command_cd":            [" path",             "Change the Present Working Node to path.\n"               ],
 
-	"command_print":   [" string",           "Print string to the in-game debug console.\n"             ],
-	"command_clear":   ["",                  "Clear the debug output.\n"                                ],
+	"command_print":         [" string",           "Print string to the in-game debug console.\n"             ],
+	"command_clear":         ["",                  "Clear the debug output.\n"                                ],
+#	!EXTREMELY DANGER {
+	"command_emit":          [" signal [message]", "Emit a message on MessageBus.signal without validation.\n"],
+	"command_call":          [" func [args ...]",  "Call func(...) with arguments args.\n"                    ],
+	"command_exec":          [" expression ...",   "Evaluate an arbitrary expression, and print the result.\n"],
+#	}
+	"command_listprops":     ["",                  "List properties of the Present Working Node\n"            ],
+	"command_getprop":       [" prop",             "Get the value of property prop\n"                         ],
+	"command_setprop":       [" prop value",       "Set the property prop to value.\n"                        ],
 
-	"command_emit":    [" signal [message]", "Emit a message on MessageBus.signal without validation.\n"],
-	"command_call":    [" func [args ...]",  "Call func(...) with arguments args.\n"                    ],
+	"command_restart":       ["",                  "Kill the current scene tree and plant a new Root.\n"      ],
+	"command_exit":          ["",                  "Quits the program.\n"                                     ],
 
-	"command_restart": ["",                  "Kill the current scene tree and plant a new Root.\n"      ],
-	"command_exit":    ["",                  "Quits the program.\n"                                     ],
-
-	"command_empty":   ["",                  "No Operation.\n"                                          ],
+	"command_empty":         ["",                  "No Operation.\n"                                          ],
 }
 
 # List of debug commands accessed by alias
@@ -56,12 +63,24 @@ var commands = {
 
 	["emit", "e"]:                  "command_emit",
 	["call", "func"]:               "command_call",
+	["exec", "_", "$", ">"]:        "command_exec",
+
+	["listprops", "lsp"]:           "command_listprops",
+	["getprop","get", "g"]:         "command_getprop",
+	["setprop","set", "s"]:         "command_setprop",
 
 	["restart", "killall"]:         "command_restart",
 	["exit", "quit"]:               "command_exit",
 
 	[""]:                           "command_empty"
 }
+
+#List of all of Godot's builtin types
+var types = ["nil", "bool","int","float","String","Vector2","Rect2",
+			 "Vector3","Transform2D","Plane","Quat","AABB","Basis","Transform",
+			 "Color","NodePath","RID","Object","Dictionary","Array","PoolByteArray",
+			 "PoolIntArray","PoolRealArray","PoolStringArray","PoolVector2Array",
+			 "PoolVector3Array","PoolColorAray"]
 
 onready var present_working_node = get_node("/root/Main")
 
@@ -214,6 +233,79 @@ func get_canonical(alias):
 func get_usage(alias):
 	return "Usage: " + alias + helptext[parse(alias)][0] + "\n"
 
+# String casting functions
+#   variant_to_string: Cast arbitrary GDScript Variant to String
+#     params: variant: variant to cast
+#     returns: String representing the Variant as closely as possible
+func variant_to_string(variant):
+	var res
+	match typeof(variant):
+		TYPE_NIL:
+			res = "null"
+		TYPE_OBJECT: #No conversion from object to string; a unique case.
+			if (variant):
+				res = variant.to_string()
+			else:
+				res = "Object = null"
+		_:
+			res = String(variant)
+	return res
+
+#   string_to_variant: Cast a string to a specified GDScript type
+#     params: string: string to be cast
+#             type: type to cast string to
+#     returns: GDScript Variant of given type
+func string_to_variant(string, type):
+	var res = null
+	var list = listify_string(string)
+	match type:
+		TYPE_NIL:
+			res = null
+		TYPE_BOOL:
+			match string.to_lower():
+				"true", "1", "ok":
+					res = true
+				_:
+					res = false
+		TYPE_INT:
+			res = int(string)
+		TYPE_REAL:
+			res = float(string)
+		TYPE_STRING:
+			res = string
+		TYPE_COLOR:
+			res = Color(string)
+		TYPE_NODE_PATH:
+			res = NodePath(string)
+		TYPE_ARRAY:
+			res = list
+		TYPE_RAW_ARRAY:
+			res = PoolByteArray(list)
+		TYPE_INT_ARRAY:
+			res = PoolIntArray(list)
+		TYPE_REAL_ARRAY:
+			res = PoolRealArray(list)
+		TYPE_STRING_ARRAY:
+			res = list
+		TYPE_COLOR_ARRAY:
+			res = PoolColorArray(list)
+		_:
+			debug_print_line("No cast from String to " + types[typeof(type)] + "\n")
+	return res
+
+#   listify_string: takes a string and turns it into a list, by splitting on commas and/or spaces
+#     params: string: string to be made into a list
+#     returns: PoolStringArray containing substrings of the list
+func listify_string(string):
+	var res = []
+	if string.findn(', ') > -1:
+		res = string.split(', ', true, 0)
+	elif string.findn(',') > -1:
+		res = string.split(',',  true, 0)
+	else:
+		res = string.split(' ',  true, 0)
+	return res
+
 # Commands. All commands take in a parameter called command,
 # which contains a partially tokenized command
 #   start: Loads scene from res://scenes/*.tscn by filename, and starts it
@@ -334,10 +426,49 @@ func command_call(command):
 			debug_print_line("We're sorry, but your call could not be completed as dialed.\n"
 			+ "Please hang up and try your call again.\n")
 			return
-		if (call_ret != null):
-			debug_print_line(String(call_ret) + "\n")
+		debug_print_line(variant_to_string(call_ret) + "\n")
+	else:
+		debug_print_line(get_usage(command[0]))
+
+#   exec: execute an arbitrary GDScript expression as present working node
+func command_exec(command):
+	if command.size() > 1:
+		var res
+		var err = expression.parse(command[1])
+		if err == OK:
+			res = expression.execute([], present_working_node, false);
+			if expression.has_execute_failed():
+				debug_print_line(command[0] + ": command not found: " + command[1])
+				res = ""
 		else:
-			debug_print_line("null\n")
+			res = expression.get_error_text()
+		debug_print_line(variant_to_string(res) + "\n")
+	else:
+		debug_print_line(get_usage(command[0]))
+
+#   listprops: list properties (variables) of present working node
+func command_listprops(_command):
+	var proplist = present_working_node.get_property_list()
+	debug_print_line(String(proplist) + "\n")
+	pass
+
+#   getprop: get the value of a named property of the present working node
+func command_getprop(command):
+	if command.size() > 1 && command[1].is_valid_identifier():
+		var res = present_working_node.get(command[1])
+		debug_print_line(variant_to_string(res) + "\n")
+	else:
+		debug_print_line(get_usage(command[0]))
+
+#   setprop: set the value of a named property of the present working node
+func command_setprop(command):
+	if command.size() > 1:
+		var prop = command[1].split(' ', true, 1)
+		if prop.size() > 1 && prop[0].is_valid_identifier():
+			var type = typeof(present_working_node.get(prop[0]))
+			var variant = string_to_variant(prop[1], type)
+			if typeof(variant) > TYPE_NIL:
+				present_working_node.set(prop[0], string_to_variant(prop[1], type))
 	else:
 		debug_print_line(get_usage(command[0]))
 
