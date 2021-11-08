@@ -3,15 +3,13 @@ extends Node
 # signals
 # Subscribe to these if you want to be notified about changes to the volume
 signal change_theme (theme)
-signal change_mus_volume (volume)
-signal change_sfx_volume (volume)
 
 # Option variables
 var f = File.new()
 var options_file = "user://options.save"
 var theme = "dark"
-var mus_vol = 100
-var sfx_vol = 100
+var mus_vol = 0
+var sfx_vol = 0
 
 func _ready():
 	load_options()
@@ -25,11 +23,9 @@ func set_theme(theme_name):
 func set_mus_vol(volume):
 	mus_vol = volume
 	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("BGM"), mus_vol)
-	emit_signal("change_mus_volume", mus_vol)
 func set_sfx_vol(volume):
 	sfx_vol = volume
 	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("SFX"), sfx_vol)
-	emit_signal("change_sfx_volume", sfx_vol)
 
 #Option Save File
 func save_options():
