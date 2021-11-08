@@ -18,9 +18,10 @@ var click_radius = 16
 var orient = 0;
 
 func _input(event):
-	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT:
+	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT:	
 		if (event.position - position).length() < click_radius:
 			if not held and event.pressed:
+				AudioBus.emit_signal("button_clicked")
 				held = true;
 				
 		if held and not event.pressed:
@@ -106,6 +107,7 @@ func _input(event):
 		if checkOriginalPos():
 			return
 		else:
+			AudioBus.emit_signal("button_clicked")			
 			if originalPos == null:
 				if position == originalPos:
 					return

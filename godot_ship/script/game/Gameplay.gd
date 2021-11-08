@@ -16,5 +16,6 @@ func _ready():
 
 
 func _on_Forfeit_pressed():
+	AudioBus.emit_signal("button_clicked")
 	queue_free();
 	MessageBus.emit_signal("change_scene", "Title")
