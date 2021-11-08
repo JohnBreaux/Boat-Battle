@@ -1,8 +1,7 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=3 format=2]
 
 [ext_resource path="res://script/options/Option-Background.png" type="Texture" id=1]
 [ext_resource path="res://script/options/Options.gd" type="Script" id=2]
-[ext_resource path="res://assets/audio/ButtonSFX.ogg" type="AudioStream" id=3]
 
 [node name="Options" type="Control"]
 anchor_right = 1.0
@@ -68,7 +67,7 @@ focus_neighbour_top = NodePath("../../../Back")
 focus_neighbour_bottom = NodePath("../../Volume Setting/Volume Slider")
 focus_next = NodePath("../../Volume Setting/Volume Slider")
 focus_previous = NodePath("../../../Back")
-min_value = -30.0
+min_value = -25.0
 max_value = 0.0
 tick_count = 11
 __meta__ = {
@@ -155,9 +154,6 @@ __meta__ = {
 "_edit_lock_": true,
 "_edit_use_anchors_": false
 }
-
-[node name="ButtonSFX" type="AudioStreamPlayer" parent="."]
-stream = ExtResource( 3 )
 
 [connection signal="value_changed" from="Sliders/SFX Setting/SFX Slider" to="." method="_on_SFX_Slider_value_changed"]
 [connection signal="value_changed" from="Sliders/Volume Setting/Volume Slider" to="." method="_on_Volume_Slider_value_changed"]

@@ -28,6 +28,7 @@ func set_mus_vol(volume):
 	emit_signal("change_mus_volume", mus_vol)
 func set_sfx_vol(volume):
 	sfx_vol = volume
+	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("SFX"), sfx_vol)
 	emit_signal("change_sfx_volume", sfx_vol)
 
 #Option Save File
@@ -45,6 +46,7 @@ func load_options():
 		sfx_vol = f.get_var()
 		f.close()
 		AudioServer.set_bus_volume_db(AudioServer.get_bus_index("BGM"), mus_vol)
+		AudioServer.set_bus_volume_db(AudioServer.get_bus_index("SFX"), sfx_vol)
 
 # Getters
 func get_theme():
