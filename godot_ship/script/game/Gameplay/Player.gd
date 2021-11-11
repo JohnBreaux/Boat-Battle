@@ -3,39 +3,40 @@ extends Node
 # Path to Board class, for instantiating new Boards in code
 var Board = "res://script/game/Gameplay/Board.gd"
 
+# Player ID of this player
 var pid
+# board (an instance of the Board class)
 var board
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	pass # Replace with function body.
 
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-#	pass
-
+# Member functions:
 #   hit: Called when opponent fires on us.
 #     Update internal state, and return bool hit/miss
 func hit():
 	pass
 
-#   placeShip: called when ships are placed.
+#   place_ship: called when ships are placed.
 #     forwards Ship locations to the Board, so that it may construct a ship
-#     ship: a list of ship properties {possition, orientation, size}
-func placeShips(_ship):
+#     ship: a list of ship properties {position, orientation, size}
+func place_ship(_ship):
 	pass
 
 #   setUp: set up the board given the placed ship locations
 #     translates the ship positions in the Setup UI to board-space, then places each ship
 #     ships: a list of lists of ship properties {{position, orientation, size}, ...}
-func setUp(_ships):
+func set_up(_ships):
 	pass
 
 #   turnStart: start player's turn
 #     Initiates the player's turn, and blocks until the player selects a location to fire upon
-#     returns: fire {player, coordinates}
+#     returns: fire = [player id, target coordinates]
 func turnStart():
+	var player_id = 0
+	var target = Vector2(0,0)
+	return [player_id, target]
 	pass
 
 #   getBoard: returns the player's board
