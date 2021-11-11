@@ -1,6 +1,9 @@
 extends Node
 
-# This is the rendered element of a "ship", auto-generated when 
+# This is the rendered element of a "ship", generated when the game transitions from the placing state to the gameplay state
+
+#
+enum Orientation {X = 1, Y = 0}
 
 var size = 0 # Size of ship in units
 var position # Coordinates of ship's center. Ship extends [-(size-1 >> 1), (size/2 >> 1)]
@@ -34,7 +37,7 @@ func getSunk():
 func setSunk():
 	sunk = true
 
-func makeShip(in_position, in_size, in_orientation):
+func _init(in_position = Vector2(0,0), in_size = 2, in_orientation = Orientation.X):
 	position = in_position
 	size = in_size
 	orientation = in_orientation

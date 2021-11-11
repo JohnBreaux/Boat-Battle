@@ -1,5 +1,8 @@
 extends Node
 
+# Path to Board class, for instantiating new Boards in code
+var Board = "res://script/game/Gameplay/Board.gd"
+
 var pid
 var board
 

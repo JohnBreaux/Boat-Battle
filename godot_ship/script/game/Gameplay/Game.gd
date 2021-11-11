@@ -1,5 +1,8 @@
 extends Node
 
+# Path to Player class, for instantiating new Players in code
+var Player = "res://script/game/Gameplay/Player.gd"
+
 var players # = player1, player2, ...
 var turnCount = 0
 var wasHit = false
@@ -8,7 +11,6 @@ var isMultiplayer = false
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	gameStart()
-	pass # Replace with function body.
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
