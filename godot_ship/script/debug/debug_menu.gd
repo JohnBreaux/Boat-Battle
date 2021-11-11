@@ -197,12 +197,20 @@ func history_move(rel_pos):
 func debug_print_line(string):
 	emit_signal("print_text", string.c_unescape())
 
+#   get_pwn: get the present working node if valid, otherwise cd to root
+func get_pwn():
+	if !is_instance_valid(present_working_node):
+		debug_print_line("Node freed, traversing to /root/\n")
+		present_working_node = get_node("/root/")
+	return present_working_node
+
+
 #   complete_path: complete a relative or absolute path, and returns the node it refers to
 #     params: path: relative or absolute path to a node
 #     returns: void
 func complete_path(path):
 	if path.is_rel_path(): # convert to absolute path
-		path = String(present_working_node.get_path()) + "/" + path
+		path = String(get_pwn().get_path()) + "/" + path
 	var node = get_node(path)
 	if node:
 		return node
@@ -321,7 +329,7 @@ func listify_string(string):
 func command_start (command):
 	if command.size() > 1:
 		var pack = load("res://scenes/" + command[1] + ".tscn");
-		present_working_node.add_child(pack.instance());
+		get_pwn().add_child(pack.instance());
 		debug_print_line("started '" + command[1] + "'\n")
 	else:
 		debug_print_line(get_usage(command[0]))
@@ -329,7 +337,7 @@ func command_start (command):
 #   stop: kills a child of current working node
 func command_kill (command):
 	if command.size() > 1:
-		var node = present_working_node.find_node(command[1], false, false)
+		var node = get_pwn().find_node(command[1], false, false)
 		if node:
 			if String(node.get_path()).match("*Debug*"):
 				debug_print_line("YOU DIDN'T SAY THE MAGIC WORD!\n")
@@ -347,7 +355,7 @@ func command_list (command):
 	if (command.size() > 1):
 		node = complete_path(command[1])
 	if (!node):
-		node = present_working_node
+		node = get_pwn()
 	var children = node.get_children()
 	var names = []
 	for i in range (children.size()):
@@ -386,7 +394,7 @@ func command_clear (_command):
 
 #   pwd: print the present working node's path
 func command_pwd (_command):
-	debug_print_line(String(present_working_node.get_path()) + "\n")
+	debug_print_line(String(get_pwn().get_path()) + "\n")
 
 #   cd: change the present working node
 func command_cd (command):
@@ -429,8 +437,8 @@ func command_call(command):
 		var call_cmd = command[1].split(' ', true, 1)
 		if call_cmd.size() > 1:
 			call_args = call_cmd[1].split(' ', false, 0)
-		if present_working_node.has_method(call_cmd[0]):
-			call_ret = present_working_node.callv(call_cmd[0], call_args)
+		if get_pwn().has_method(call_cmd[0]):
+			call_ret = get_pwn().callv(call_cmd[0], call_args)
 		else:
 			debug_print_line("We're sorry, but your call could not be completed as dialed.\n"
 			+ "Please hang up and try your call again.\n")
@@ -445,7 +453,7 @@ func command_exec(command):
 		var res
 		var err = expression.parse(command[1])
 		if err == OK:
-			res = expression.execute([], present_working_node, false);
+			res = expression.execute([], get_pwn(), false);
 			if expression.has_execute_failed():
 				debug_print_line(command[0] + ": command not found: " + command[1])
 				res = ""
@@ -458,7 +466,7 @@ func command_exec(command):
 #   listprops: list properties (variables) of present working node
 func command_listprops(_command):
 	var props = ""
-	var proplist = present_working_node.get_property_list()
+	var proplist = get_pwn().get_property_list()
 	proplist.sort_custom(self, "propSort")
 	for prop in proplist:
 		if prop["name"]:
@@ -474,7 +482,7 @@ func propSort(a, b):
 #   getprop: get the value of a named property of the present working node
 func command_getprop(command):
 	if command.size() > 1:
-		var res = present_working_node.get(command[1])
+		var res = get_pwn().get(command[1])
 		debug_print_line(variant_to_string(res) + "\n")
 	else:
 		debug_print_line(get_usage(command[0]))
@@ -484,10 +492,10 @@ func command_setprop(command):
 	if command.size() > 1:
 		var prop = command[1].split(' ', true, 1)
 		if prop.size() > 1 && prop[0].is_valid_identifier():
-			var type = typeof(present_working_node.get(prop[0]))
+			var type = typeof(get_pwn().get(prop[0]))
 			var variant = string_to_variant(prop[1], type)
 			if typeof(variant) > TYPE_NIL:
-				present_working_node.set(prop[0], string_to_variant(prop[1], type))
+				get_pwn().set(prop[0], string_to_variant(prop[1], type))
 	else:
 		debug_print_line(get_usage(command[0]))
 
