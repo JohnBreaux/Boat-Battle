@@ -1,117 +1,60 @@
 extends RigidBody2D
 
-# Declare member variables here. Examples:
-# var a = 2
-# var b = "text"
+
 var held = false
 var originalPos # Position before moving the ship
 var snapOriginalPos = false # Gets the original position
 var vertical = true # Gets ship which is either vertical or horizonal
 var startingPos # Starting position of ships before being placed
-var TwoShip_StartingPos
-var ThreeShipA_StartingPos
-var ThreeShipB_StartingPos
-var FourShip_StartingPos
-var FiveShip_StartingPos
+var mousePos
+
+# Ships are all named starting with their length,
+# So we cast from string to int, on the ship name, and get the length
+onready var ship_length = int(name)
+
+var collision = false
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	startingPos = position # Sets the position of ships when game is started to the startingPos variable
-	TwoShip_StartingPos = get_parent().get_node("2Ship").position
-	ThreeShipA_StartingPos = get_parent().get_node("3ShipA").position
-	ThreeShipB_StartingPos = get_parent().get_node("3ShipB").position
-	FourShip_StartingPos = get_parent().get_node("4Ship").position
-	FiveShip_StartingPos = get_parent().get_node("5Ship").position
+	mode = MODE_KINEMATIC
+	# Snap the ships to the grid, so the engine won't get mad when they're moved away from the starting position every frame
+	position = (position - offset).snapped(Vector2(32, 32)) + offset
+	startingPos = position
+	var _trash
+	# Connect to my own signals, and not the signals of my fellowships
+	# PLEASE don't parameterize; there's no way to tell these signals apart with the args the engine provides.
+	_trash = connect("body_entered", self, "ship_stacked")
+	_trash = connect("body_exited",  self, "ship_unstacked")
 
+# Radius of the "knob" on the center of each ship
 var click_radius = 16
-var orient = 0;
 
 func _input(event):
 	if event is InputEventMouseButton and event.button_index == BUTTON_LEFT:	
 		if (event.position - position).length() < click_radius:
 			if not held and event.pressed:
 				AudioBus.emit_signal("button_clicked")
-				held = true;
+				pickup()
 				
 		if held and not event.pressed:
-			held = false;
-			# If ship is placed on board, snap to board
-			if (position.x > 17.4 and position.x < 335.5) and (position.y > 20.2 and position.y < 335.5):
-				position = position.snapped(Vector2(32, 32)) + Vector2(4, 4) # Position snapping on board
-			else: # If not placed on board, ships are placed back at the starting position
+
+			drop()
+			# Convert the center of this piece to board-space
+			var bs_position = world_to_board_space(position)
+			# Check whether the piece is within half a board-space of the grid (-0.5, 9.5)
+			if not (bs_position.x > -0.5 and bs_position.x < 9.5 and bs_position.y > -0.5 and bs_position.y < 9.5):
+#			if not (position.x > 17.4 and position.x < 335.5) and (position.y > 20.2 and position.y < 335.5):
 				if originalPos != null:
-					position = originalPos
+					collision = true
 					rotation = 0
 					vertical = true
-			
-			# Lines 40-98 make sure that the ships placed on the board are not able to hang off the board
-			
-			# 2-Ship
-			if (get_parent().get_node("2Ship").rotation_degrees == 0):
-				if (get_parent().get_node("2Ship").position.y > 308):
-					position = originalPos
-					rotation = 0
-					vertical = true
-			if (get_parent().get_node("2Ship").rotation_degrees == -90):
-				if (get_parent().get_node("2Ship").position.x > 308):
-					position = originalPos
-					rotation = 0
-					vertical = true
-			
-			# 3-Ship A
-			if (get_parent().get_node("3ShipA").rotation_degrees == 0):
-				if (get_parent().get_node("3ShipA").position.y > 308) or (get_parent().get_node("3ShipA").position.y < 52):
-					position = originalPos
-					rotation = 0
-					vertical = true
-			if (get_parent().get_node("3ShipA").rotation_degrees == -90):
-				if (get_parent().get_node("3ShipA").position.x > 308) or (get_parent().get_node("3ShipA").position.x < 52):
-					position = originalPos
-					rotation = 0
-					vertical = true
-			
-			# 3-Ship B
-			if (get_parent().get_node("3ShipB").rotation_degrees == 0):
-				if (get_parent().get_node("3ShipB").position.y > 308) or (get_parent().get_node("3ShipB").position.y < 52):
-					position = originalPos
-					rotation = 0
-					vertical = true
-			if (get_parent().get_node("3ShipB").rotation_degrees == -90):
-				if (get_parent().get_node("3ShipB").position.x > 308) or (get_parent().get_node("3ShipB").position.x < 52):
-					position = originalPos
-					rotation = 0
-					vertical = true
-					
-			# 4-Ship
-			if (get_parent().get_node("4Ship").rotation_degrees == 0):
-				if (get_parent().get_node("4Ship").position.y > 276.8) or (get_parent().get_node("4Ship").position.y < 52):
-					position = originalPos
-					rotation = 0
-					vertical = true
-			if (get_parent().get_node("4Ship").rotation_degrees == -90):
-				if (get_parent().get_node("4Ship").position.x > 276.8) or (get_parent().get_node("4Ship").position.x < 52):
-					position = originalPos
-					rotation = 0
-					vertical = true
-					
-			# 5-Ship
-			if (get_parent().get_node("5Ship").rotation_degrees == 0):
-				if (get_parent().get_node("5Ship").position.y > 276.8) or (get_parent().get_node("5Ship").position.y < 84.8):
-					position = originalPos
-					rotation = 0
-					vertical = true
-			if (get_parent().get_node("5Ship").rotation_degrees == -90):
-				if (get_parent().get_node("5Ship").position.x > 276.8) or (get_parent().get_node("5Ship").position.x < 84.8):
-					position = originalPos
-					rotation = 0
-					vertical = true
-					
-			
+
 	if event is InputEventMouseMotion and held:
 		if snapOriginalPos == false:
 			originalPos = position
 			snapOriginalPos = true
-		position = event.position;
+		# Save the moise position, so _physics_process can use it
+		mousePos = event.position;
 		
 	if event.is_action_pressed("ui_rotate"):
 		if held:
@@ -119,146 +62,133 @@ func _input(event):
 		if checkOriginalPos():
 			return
 		else:
-			AudioBus.emit_signal("button_clicked")			
+			AudioBus.emit_signal("button_clicked")
 			if originalPos == null:
 				if position == originalPos:
 					return
 			elif(event.position - position).length() < click_radius:
-				if vertical == true:
-					rotate(-PI/2)
-					vertical = false
-				else:
-					rotate(PI/2)
-					vertical = true
+				# Rotation has been moved to _physics_process,
+				# as per recommendation of godot_engine.org
+				#rotation = (-PI/2)
+				vertical = not vertical
+
+
+# Offset from the corner of the screen to the corner of the board
+const offset = Vector2(36, 36)
+# The previous verticality of the object
+var   prev_vertical = true
+# The previous position of the object
+var   prev_position = Vector2(0,0)
+# The number of frames after an object is released to check for physics updates
+var   released = 0
+
+
+#   _physics_process: called in place of the physics processor
+#     Checks collision and updates the position and rotation of the object
+func _physics_process(_delta):
+	# calculate whether the piece has been rotated or moved
+	var rotated = prev_vertical != vertical
+	var moved = prev_position != position
+	
+	# If the piece is held, move it to the mouse:
+	if held and mousePos and mousePos != position:
+		position = mousePos
+		mousePos = null
+    
+	# Snap it to the grid if not held (and previously moved)
+	if not held and moved:
+		position = (position - offset).snapped(Vector2(32, 32)) + offset
+		prev_position = position
 		
-		# Lines  126-196 move the ship back accordingly after being rotated to make sure that the ships do not hang off the board
-		if(position.x > 17.4 and position.x < 335.5) and (position.y > 20.2 and position.y < 335.5):
-			# 2-Ship
-			if (get_parent().get_node("2Ship").rotation_degrees == 0):
-				if (get_parent().get_node("2Ship").position.y > 308):
-					get_parent().get_node("2Ship").position.y -= 32
-			if (get_parent().get_node("2Ship").rotation_degrees == -90):
-				if (get_parent().get_node("2Ship").position.x > 308):
-					get_parent().get_node("2Ship").position.x -= 32
+	# Check collisions after released, reset if colliding
+	if collision and released:
+		position = startingPos
 		
-			# 3-Ship A
-			if (get_parent().get_node("3ShipA").rotation_degrees == 0):
-				if (get_parent().get_node("3ShipA").position.y > 308):
-					get_parent().get_node("3ShipA").position.y -= 32
-				if (get_parent().get_node("3ShipA").position.y < 52):
-					get_parent().get_node("3ShipA").position.y += 32
-			if (get_parent().get_node("3ShipA").rotation_degrees == -90):
-				if (get_parent().get_node("3ShipA").position.x > 308):
-					get_parent().get_node("3ShipA").position.x -= 32
-				if (get_parent().get_node("3ShipA").position.x < 52):
-					get_parent().get_node("3ShipA").position.x += 32
-			
-			# 3-Ship B
-			if (get_parent().get_node("3ShipB").rotation_degrees == 0):
-				if (get_parent().get_node("3ShipB").position.y > 308):
-					get_parent().get_node("3ShipB").position.y -= 32
-				if (get_parent().get_node("3ShipB").position.y < 52):
-					get_parent().get_node("3ShipB").position.y += 32
-			if (get_parent().get_node("3ShipB").rotation_degrees == -90):
-				if (get_parent().get_node("3ShipB").position.x > 308):
-					get_parent().get_node("3ShipB").position.x -= 32
-				if (get_parent().get_node("3ShipB").position.x < 52):
-					get_parent().get_node("3ShipB").position.x += 32
-					
-			# 4-Ship
-			if (get_parent().get_node("4Ship").rotation_degrees == 0):
-				if (get_parent().get_node("4Ship").position.y > 308.8):
-					get_parent().get_node("4Ship").position.y -= 64;
-				elif (get_parent().get_node("4Ship").position.y > 276.8):
-					get_parent().get_node("4Ship").position.y -= 32;
-				if (get_parent().get_node("4Ship").position.y < 52):
-					get_parent().get_node("4Ship").position.y += 32
-			if (get_parent().get_node("4Ship").rotation_degrees == -90):
-				if (get_parent().get_node("4Ship").position.x > 308.8):
-					get_parent().get_node("4Ship").position.x -= 64
-				elif (get_parent().get_node("4Ship").position.x > 276.8):
-					get_parent().get_node("4Ship").position.x -= 32
-				if (get_parent().get_node("4Ship").position.x < 52):
-					get_parent().get_node("4Ship").position.x += 32
-					
-			# 5-Ship
-			if (get_parent().get_node("5Ship").rotation_degrees == 0):
-				if (get_parent().get_node("5Ship").position.y > 308.8):
-					get_parent().get_node("5Ship").position.y -= 64
-				elif (get_parent().get_node("5Ship").position.y > 276.8):
-					get_parent().get_node("5Ship").position.y -= 32
-				
-				if (get_parent().get_node("5Ship").position.y < 52):
-					get_parent().get_node("5Ship").position.y += 64
-				elif (get_parent().get_node("5Ship").position.y < 84.8):
-					get_parent().get_node("5Ship").position.y += 32
-					
-			if (get_parent().get_node("5Ship").rotation_degrees == -90):
-				if (get_parent().get_node("5Ship").position.x > 308.8):
-					get_parent().get_node("5Ship").position.x -= 64
-				elif (get_parent().get_node("5Ship").position.x > 276.8):
-					get_parent().get_node("5Ship").position.x -= 32
-					
-				if (get_parent().get_node("5Ship").position.x < 52):
-					get_parent().get_node("5Ship").position.x += 64
-				elif (get_parent().get_node("5Ship").position.x < 84.8):
-					get_parent().get_node("5Ship").position.x += 32
+	# If it's been moved or rotated, snap it to the board
+	if released or rotated:
+		# check whether the ends of the piece are within the board
+		var linear_move = check_extents(position, vertical, ship_length)
+		# if not, move them back inside
+		if linear_move:
+			if vertical:
+				position += 32 * Vector2(0, linear_move)
+			else:
+				position += 32 * Vector2(linear_move, 0)
+			pass
+	
+	# Rotate if the piece needs to be rotated
+	if rotated:
+		prev_vertical = vertical
+		rotation = -PI/2 * int(not vertical) # int(true) == 1, int(false) == 0
 		
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-#	pass
+	# Count down the number of physics timesteps left until the piece can stop processing
+	if released > 0: 
+		released = released - 1
+
 
 func pickup():
-	if held:
-		return
-	mode = RigidBody2D.MODE_STATIC
-	held = true
+	if not held:
+		raise() # Render this ship on top of other ships
+		held = true # mark it as held
+		collision = false # Assume we're not colliding by default
 
-func drop(impulse=Vector2.ZERO):
+func drop():
 	if held:
-		mode = RigidBody2D.MODE_RIGID
-		apply_central_impulse(impulse)
-		held = false
+		released = 1 # mark the node as released
+		held = false # mark the node as not held
 		snapOriginalPos = false
-		
-func checkOriginalPos(): # Checks whether the position of the ship is the stating position of the ship
-	if position == startingPos:
-		return true
-	else:
-		return false
 
-func _on_Clear_pressed():
-	get_parent().get_node("2Ship").position = TwoShip_StartingPos
-	get_parent().get_node("2Ship").rotation = 0
-	get_parent().get_node("3ShipA").position = ThreeShipA_StartingPos
-	get_parent().get_node("3ShipA").rotation = 0
-	get_parent().get_node("3ShipB").position = ThreeShipB_StartingPos
-	get_parent().get_node("3ShipB").rotation = 0
-	get_parent().get_node("4Ship").position = FourShip_StartingPos
-	get_parent().get_node("4Ship").rotation = 0
-	get_parent().get_node("5Ship").position = FiveShip_StartingPos
-	get_parent().get_node("5Ship").rotation = 0
-	vertical = true
+func checkOriginalPos():
+	return position == startingPos
 
-func check_all_ships_are_on_board():
-	if !((get_parent().get_node("2Ship").position.x > 17.4 and get_parent().get_node("2Ship").position.x < 335.5) and (get_parent().get_node("2Ship").position.y > 20.2 and get_parent().get_node("2Ship").position.y < 335.5)):
-		return false
-	elif !((get_parent().get_node("3ShipA").position.x > 17.4 and get_parent().get_node("3ShipA").position.x < 335.5) and (get_parent().get_node("3ShipA").position.y > 20.2 and get_parent().get_node("3ShipA").position.y < 335.5)):
-		return false
-	elif !((get_parent().get_node("3ShipB").position.x > 17.4 and get_parent().get_node("3ShipB").position.x < 335.5) and (get_parent().get_node("3ShipB").position.y > 20.2 and get_parent().get_node("3ShipB").position.y < 335.5)):
-		return false
-	elif !((get_parent().get_node("4Ship").position.x > 17.4 and get_parent().get_node("4Ship").position.x < 335.5) and (get_parent().get_node("4Ship").position.y > 20.2 and get_parent().get_node("4Ship").position.y < 335.5)):
-		return false
-	elif !((get_parent().get_node("5Ship").position.x > 17.4 and get_parent().get_node("5Ship").position.x < 335.5) and (get_parent().get_node("5Ship").position.y > 20.2 and get_parent().get_node("5Ship").position.y < 335.5)):
-		return false
-	else:
-		return true
 
-func _on_Confirm_Placement_pressed():
-	if check_all_ships_are_on_board():
-		print("all ships are on board") # Remove this line
-		# Convert ships to board pieces
+# Called when *this* ship collides with another ship
+func ship_stacked(_body):
+	collision = true
+# Called when *this* ship stops colliding with another ship
+func ship_unstacked(_body):
+	collision = false
+
+# Calculate the extents (front to back) of the ship and check whether they're on the board
+# Returns how many squares to move the ship along its orientation axis (positive or negative)
+func check_extents(center, orientation, length):
+	center = world_to_board_space(center) # Convert to board-space (0-10)
+	print("Center: ", center)
+	# Calculate the position of the front of the ship
+	# Orientation is true when the ship is vertical
+	var bow   = vectorget(center, orientation) - floor((length - 1) / 2)
+	print("Bow: ", bow)
+	# if out of bounds, return how much to move the ship by
+	if bow < 0:
+		print("return: ", -bow)
+		return -bow
+	# Calculate the position of the rear of the ship
+	var stern = vectorget(center, orientation) + floor(length / 2)
+	print("Stern: ", stern)
+	# If out of bounds, return how much to move the ship by
+	if stern >= 10:
+		print("return: ", -(stern - 9))
+		return -(stern - 9)
+	print("return: ", 0)
+	return 0
+
+# Convert the world-space coordinates to positions on the board
+func world_to_board_space(vector):
+	# Do math
+	var res = (vector - offset) / 32 # Subtract the distance between the screen corner and square (0,0)
+	return res
+
+# Inverse of the above function.
+func board_to_world_space(vector):
+	# Do math
+	var res = (vector * 32) + offset #Invert the above function
+	return res #Truncate decimals
+
+# index a Vector2 like an array
+# Why is this needed?
+# So we can discard the unimportant axis! (a ship is always 1 unit wide!)
+func vectorget(vector, axis):
+	if axis:
+		return vector.y
 	else:
-		print("You can't confirm placement until all ships are placed")
-		get_parent().get_node("AcceptDialog").popup()
-		#OS.alert("You can't confirm placement until all ships are placed", "Confirm Placement")
+		return vector.x

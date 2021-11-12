@@ -8,6 +8,7 @@ extents = Vector2( 16, 32 )
 
 [node name="2Ship" type="RigidBody2D"]
 input_pickable = true
+gravity_scale = 0.0
 custom_integrator = true
 script = ExtResource( 1 )
 
@@ -16,5 +17,11 @@ position = Vector2( 0, 16 )
 texture = ExtResource( 2 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2( 0, 16.25 )
+position = Vector2( 0.125, 16 )
+shape = SubResource( 1 )
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+position = Vector2( 0.125, 16 )
 shape = SubResource( 1 )
