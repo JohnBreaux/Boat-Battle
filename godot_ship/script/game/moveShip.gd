@@ -4,7 +4,7 @@ extends RigidBody2D
 var held = false
 var originalPos # Position before moving the ship
 var snapOriginalPos = false # Gets the original position
-var mousePos
+var mousePos # Stores the last known mouse position so the physics engine can use it
 var vertical = true # Gets ship which is either vertical or horizonal
 var startingPos # Starting position of ships before being placed
 
@@ -18,6 +18,8 @@ var collision = false
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	mode = MODE_KINEMATIC
+	contacts_reported = 64
+	set_use_custom_integrator(true)
 	# Snap the ships to the grid, so the engine won't get mad when they're moved away from the starting position every frame
 	position = (position - offset).snapped(Vector2(32, 32)) + offset
 	startingPos = position
@@ -62,7 +64,9 @@ func _input(event):
 				# Rotation has been moved to _physics_process,
 				# as per recommendation of godot_engine.org
 				vertical = not vertical
-
+				# It takes 3 physics ticks for the rotation to update the hitboxes
+				# Determined imperically through testing, may work differently on different machines(?)
+				released = 3
 
 # Offset from the corner of the screen to the corner of the board
 const offset = Vector2(36, 36)
@@ -73,9 +77,6 @@ var   prev_position = Vector2(0,0)
 # The number of frames after an object is released to check for physics updates
 var   released = 0
 
-func _integrate_forces(state):
-	if state.get_contact_count():
-		collision = true
 
 #   _physics_process: called in place of the physics processor
 #     Checks collision and updates the position and rotation of the object
@@ -83,17 +84,17 @@ func _physics_process(_delta):
 	# calculate whether the piece has been rotated or moved
 	var rotated = prev_vertical != vertical
 	var moved = prev_position != position
-	
+
 	# If the piece is held, move it to the mouse:
 	if held and mousePos and mousePos != position:
 		position = mousePos
 		mousePos = null
-	
+
 	# Snap it to the grid if not held (and previously moved)
 	if not held and moved:
 		position = (position - offset).snapped(Vector2(32, 32)) + offset
 		prev_position = position
-		
+
 	# If it's been moved or rotated, snap it to the board
 	if released or rotated:
 		# check whether the ends of the piece are within the board
@@ -105,17 +106,18 @@ func _physics_process(_delta):
 			else:
 				position += 32 * Vector2(linear_move, 0)
 			pass
-	
+
 	# Check collisions after released, reset if colliding
 	if collision and released:
 		position = startingPos
 		rotation = 0
 		vertical = true
+
 	# Rotate if the piece needs to be rotated
 	if rotated:
 		prev_vertical = vertical
 		rotation = -PI/2 * int(not vertical) # int(true) == 1, int(false) == 0
-		
+
 	# Count down the number of physics timesteps left until the piece can stop processing
 	if released > 0: 
 		released = released - 1
@@ -139,9 +141,11 @@ func checkOriginalPos():
 
 # Called when *this* ship collides with another ship
 func ship_stacked(_body):
+	print("stacked")
 	collision = true
 # Called when *this* ship stops colliding with another ship
 func ship_unstacked(_body):
+	print("unstacked")
 	collision = false
 
 # Calculate the extents (front to back) of the ship and check whether they're on the board
