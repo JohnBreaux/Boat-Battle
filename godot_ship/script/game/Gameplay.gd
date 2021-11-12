@@ -1,7 +1,12 @@
 extends Control
 
 onready var Ships = ["2Ship", "3ShipA", "3ShipB", "4Ship", "5Ship"]
+onready var Crosshair
 
+class Location:
+	var Coor: Vector2
+	var Length: int
+	var Orientation: bool #vertical is true, (Trueship = vertical) (Falseship = horizontal)
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -25,10 +30,50 @@ func _on_Confirm_Placement_pressed():
 	print ("Placement: ", valid)
 	if valid == false:
 		get_node("AcceptDialog").popup()
+	else:
+		#Saves the location of ships and length of ship into an array
+		var shipLocation = []
+		for ship in Ships:
+			var location = Location.new()
+			location.Coor = get_node(ship).position
+			location.Length = get_node(ship).get("ship_length")
+			location.Orientation = get_node(ship).get("vertical")
+			shipLocation.append(location)
+		
+		#print out the array for testing
+		for x in shipLocation:
+			print("Ship Length: ", x.Length, ", Ship Orientation: ", x.Orientation, "Ship Coor: ", x.Coor)
+		
+		#Hides the ship placement UI
+		var confirmButton = get_node("Confirm Placement")
+		var clearButton = get_node("Clear")
+		var ship1 = get_node("2Ship")
+		var ship2 = get_node("3ShipA")
+		var ship3 = get_node("3ShipB")
+		var ship4 = get_node("4Ship")
+		var ship5 = get_node("5Ship")
+		confirmButton.visible = false
+		clearButton.visible = false
+		ship1.visible = false
+		ship2.visible = false
+		ship3.visible = false
+		ship4.visible = false
+		ship5.visible = false
+		
+		#Changes to firing mode, makes the fireing mode UI visible (The location of this can be changed later. This position is for testing)
+		var crosshair = get_node("Crosshair")
+		var fireButton = get_node("Fire")
+		crosshair.visible = true
+		fireButton.visible = true
 	return valid # Replace with function body.
-
 
 func _on_Clear_pressed():
 	for ship in Ships:
 		get_node(ship).clear()
+	pass # Replace with function body.
+
+
+func _on_Fire_pressed():
+	var crosshair = get_node("Crosshair")
+	print("Fire at position: ", crosshair.position)
 	pass # Replace with function body.
