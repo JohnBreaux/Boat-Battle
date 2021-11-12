@@ -133,5 +133,5 @@ __meta__ = {
 
 [connection signal="pressed" from="VBoxContainer/Forfeit" to="." method="_on_Forfeit_pressed"]
 [connection signal="about_to_show" from="ConfirmationDialog" to="." method="_on_ConfirmationDialog_about_to_show"]
-[connection signal="pressed" from="Confirm Placement" to="2Ship" method="_on_Confirm_Placement_pressed"]
-[connection signal="pressed" from="Clear" to="2Ship" method="_on_Clear_pressed"]
+[connection signal="pressed" from="Confirm Placement" to="." method="_on_Confirm_Placement_pressed"]
+[connection signal="pressed" from="Clear" to="." method="_on_Clear_pressed"]
