@@ -8,11 +8,20 @@ var originalPos # Position before moving the ship
 var snapOriginalPos = false # Gets the original position
 var vertical = true # Gets ship which is either vertical or horizonal
 var startingPos # Starting position of ships before being placed
+var TwoShip_StartingPos
+var ThreeShipA_StartingPos
+var ThreeShipB_StartingPos
+var FourShip_StartingPos
+var FiveShip_StartingPos
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	startingPos = position # Sets the position of ships when game is started to the startingPos variable
-	pass
+	TwoShip_StartingPos = get_parent().get_node("2Ship").position
+	ThreeShipA_StartingPos = get_parent().get_node("3ShipA").position
+	ThreeShipB_StartingPos = get_parent().get_node("3ShipB").position
+	FourShip_StartingPos = get_parent().get_node("4Ship").position
+	FiveShip_StartingPos = get_parent().get_node("5Ship").position
 
 var click_radius = 16
 var orient = 0;
@@ -217,3 +226,39 @@ func checkOriginalPos(): # Checks whether the position of the ship is the statin
 		return true
 	else:
 		return false
+
+func _on_Clear_pressed():
+	get_parent().get_node("2Ship").position = TwoShip_StartingPos
+	get_parent().get_node("2Ship").rotation = 0
+	get_parent().get_node("3ShipA").position = ThreeShipA_StartingPos
+	get_parent().get_node("3ShipA").rotation = 0
+	get_parent().get_node("3ShipB").position = ThreeShipB_StartingPos
+	get_parent().get_node("3ShipB").rotation = 0
+	get_parent().get_node("4Ship").position = FourShip_StartingPos
+	get_parent().get_node("4Ship").rotation = 0
+	get_parent().get_node("5Ship").position = FiveShip_StartingPos
+	get_parent().get_node("5Ship").rotation = 0
+	vertical = true
+
+func check_all_ships_are_on_board():
+	if !((get_parent().get_node("2Ship").position.x > 17.4 and get_parent().get_node("2Ship").position.x < 335.5) and (get_parent().get_node("2Ship").position.y > 20.2 and get_parent().get_node("2Ship").position.y < 335.5)):
+		return false
+	elif !((get_parent().get_node("3ShipA").position.x > 17.4 and get_parent().get_node("3ShipA").position.x < 335.5) and (get_parent().get_node("3ShipA").position.y > 20.2 and get_parent().get_node("3ShipA").position.y < 335.5)):
+		return false
+	elif !((get_parent().get_node("3ShipB").position.x > 17.4 and get_parent().get_node("3ShipB").position.x < 335.5) and (get_parent().get_node("3ShipB").position.y > 20.2 and get_parent().get_node("3ShipB").position.y < 335.5)):
+		return false
+	elif !((get_parent().get_node("4Ship").position.x > 17.4 and get_parent().get_node("4Ship").position.x < 335.5) and (get_parent().get_node("4Ship").position.y > 20.2 and get_parent().get_node("4Ship").position.y < 335.5)):
+		return false
+	elif !((get_parent().get_node("5Ship").position.x > 17.4 and get_parent().get_node("5Ship").position.x < 335.5) and (get_parent().get_node("5Ship").position.y > 20.2 and get_parent().get_node("5Ship").position.y < 335.5)):
+		return false
+	else:
+		return true
+
+func _on_Confirm_Placement_pressed():
+	if check_all_ships_are_on_board():
+		print("all ships are on board") # Remove this line
+		# Convert ships to board pieces
+	else:
+		print("You can't confirm placement until all ships are placed")
+		get_parent().get_node("AcceptDialog").popup()
+		#OS.alert("You can't confirm placement until all ships are placed", "Confirm Placement")
