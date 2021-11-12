@@ -12,7 +12,12 @@ var startingPos
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	startingPos = position
-	pass
+	var _errno = 0
+	_errno = find_parent("Game").connect("two_ship_collide", self, "if_ship_stacked")
+	_errno = find_parent("Game").connect("three_shipA_collide", self, "if_ship_stacked")
+	_errno = find_parent("Game").connect("three_shipB_collide", self, "if_ship_stacked")
+	_errno = find_parent("Game").connect("four_ship_collide", self, "if_ship_stacked")
+	_errno = find_parent("Game").connect("five_ship_collide", self, "if_ship_stacked")
 
 var click_radius = 16
 var orient = 0;
@@ -113,10 +118,10 @@ func _input(event):
 					return
 			elif(event.position - position).length() < click_radius:
 				if vertical == true:
-					rotate(-PI/2)
+					rotation = (-PI/2)
 					vertical = false
 				else:
-					rotate(PI/2)
+					rotation = 0
 					vertical = true
 		
 		if(position.x > 17.4 and position.x < 335.5) and (position.y > 20.2 and position.y < 335.5):
@@ -213,3 +218,11 @@ func checkOriginalPos():
 		return true
 	else:
 		return false
+
+func if_ship_stacked(ship):
+	if !held && ship == name:
+		position = startingPos
+		rotation = 0
+	print("we colliding over here")
+	return
+	
