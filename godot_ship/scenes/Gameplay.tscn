@@ -99,8 +99,3 @@ contact_monitor = true
 
 [connection signal="pressed" from="VBoxContainer/Forfeit" to="." method="_on_Forfeit_pressed"]
 [connection signal="about_to_show" from="ConfirmationDialog" to="." method="_on_ConfirmationDialog_about_to_show"]
-[connection signal="body_entered" from="2Ship" to="." method="_on_2Ship_body_entered"]
-[connection signal="body_entered" from="3ShipA" to="." method="_on_3ShipA_body_entered"]
-[connection signal="body_entered" from="3ShipB" to="." method="_on_3ShipB_body_entered"]
-[connection signal="body_entered" from="4Ship" to="." method="_on_4Ship_body_entered"]
-[connection signal="body_entered" from="5Ship" to="." method="_on_5Ship_body_entered"]
