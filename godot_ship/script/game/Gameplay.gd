@@ -23,6 +23,8 @@ func _on_Confirm_Placement_pressed():
 		if get_node(ship).validate_placement():
 			valid = false
 	print ("Placement: ", valid)
+	if valid == false:
+		get_node("AcceptDialog").popup()
 	return valid # Replace with function body.
 
 
