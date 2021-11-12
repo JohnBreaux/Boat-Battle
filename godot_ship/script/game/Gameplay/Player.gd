@@ -6,7 +6,7 @@ var Board = "res://script/game/Gameplay/Board.gd"
 # Player ID of this player
 var pid
 # board (an instance of the Board class)
-var board
+onready var board = Board.new()
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
