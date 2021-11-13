@@ -29,7 +29,7 @@ func _on_Confirm_Placement_pressed():
 			valid = false
 	print ("Placement: ", valid)
 	if valid == false:
-		get_node("AcceptDialog").popup()
+		get_node("PlaceShipDialog").popup()
 	else:
 		#Saves the location of ships and length of ship into an array
 		var shipLocation = []
@@ -75,5 +75,17 @@ func _on_Clear_pressed():
 
 func _on_Fire_pressed():
 	var crosshair = get_node("Crosshair")
-	print("Fire at position: ", crosshair.position)
+	# hides crosshair
+	crosshair.visible = false
+	if crosshair.validate_position(crosshair.position) == true:
+		# fires at position
+		print("Fire at position: ", crosshair.position)
+	else:
+		#if invalid position popup appears
+		var dialog = get_node("FireDialog")
+		dialog.popup_centered()
+	pass # Replace with function body.
+
+func _on_FireDialog_confirmed():
+	get_node("Crosshair").visible = true
 	pass # Replace with function body.
