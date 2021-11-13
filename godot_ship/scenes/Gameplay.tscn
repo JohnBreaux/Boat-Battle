@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=2]
+[gd_scene load_steps=11 format=2]
 
 [ext_resource path="res://assets/game/board_blue.png" type="Texture" id=1]
 [ext_resource path="res://script/title screen/Title-Screen-Background.png" type="Texture" id=2]
@@ -10,7 +10,6 @@
 [ext_resource path="res://scenes/ships/4Ship.tscn" type="PackedScene" id=8]
 [ext_resource path="res://assets/game/RedCrosshair.png" type="Texture" id=9]
 [ext_resource path="res://script/game/Gameplay/Crosshair.gd" type="Script" id=10]
-[ext_resource path="res://assets/game/4Ship_Destroyed.png" type="Texture" id=11]
 
 [node name="Game" type="Control"]
 anchor_right = 1.0
@@ -155,10 +154,6 @@ pause_mode = 2
 margin_right = 83.0
 margin_bottom = 58.0
 dialog_text = "You can't fire outside the board"
-
-[node name="4Ship_Destroyed" type="Sprite" parent="."]
-position = Vector2( 196.65, 181.634 )
-texture = ExtResource( 11 )
 
 [connection signal="pressed" from="VBoxContainer/Forfeit" to="." method="_on_Forfeit_pressed"]
 [connection signal="about_to_show" from="ConfirmationDialog" to="." method="_on_ConfirmationDialog_about_to_show"]

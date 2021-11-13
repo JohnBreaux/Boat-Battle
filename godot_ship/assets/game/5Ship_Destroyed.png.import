@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/3ShipA_Destroyed.png-95908b7b74da915910232dfaef45af1c.stex"
+path="res://.import/5Ship_Destroyed.png-26b685facbe48d12dffaa45c142d98de.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/game/3ShipA_Destroyed.png"
-dest_files=[ "res://.import/3ShipA_Destroyed.png-95908b7b74da915910232dfaef45af1c.stex" ]
+source_file="res://assets/game/5Ship_Destroyed.png"
+dest_files=[ "res://.import/5Ship_Destroyed.png-26b685facbe48d12dffaa45c142d98de.stex" ]
 
 [params]
 
