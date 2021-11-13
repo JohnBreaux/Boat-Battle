@@ -141,11 +141,9 @@ func checkOriginalPos():
 
 # Called when *this* ship collides with another ship
 func ship_stacked(_body):
-	print("stacked")
 	collision = true
 # Called when *this* ship stops colliding with another ship
 func ship_unstacked(_body):
-	print("unstacked")
 	collision = false
 
 # Calculate the extents (front to back) of the ship and check whether they're on the board

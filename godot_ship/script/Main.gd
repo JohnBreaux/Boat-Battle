@@ -2,7 +2,7 @@ extends Control
 
 # Scenes
 onready var title_screen = preload("res://scenes/Title Screen.tscn")
-onready var gameplay     = preload("res://scenes/Gameplay.tscn"    )
+onready var game         = preload("res://scenes/Game/Game.tscn"   )
 onready var options      = preload("res://scenes/Options.tscn"     )
 onready var debug_menu   = preload("res://scenes/Debug Menu.tscn"  )
 
@@ -48,10 +48,12 @@ func _on_scene_start(scene):
 	#print ("_on_scene_start(",scene,")")
 	match scene:
 		"Singleplayer": 
-			add_child (gameplay.instance())
+			add_child (game.instance())
 			return true
 		"Multiplayer": 
-			add_child (gameplay.instance())
+			game = game.instance()
+			game.is_multiplayer = true
+			add_child (game)
 			# add_child (multiplayercontroller.instance())
 			return true
 		"Options": 
