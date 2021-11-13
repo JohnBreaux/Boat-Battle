@@ -1,6 +1,5 @@
 extends Control
 
-signal forfeit
 signal game_ready
 
 onready var Ships = ["2Ship", "3ShipA", "3ShipB", "4Ship", "5Ship"]
