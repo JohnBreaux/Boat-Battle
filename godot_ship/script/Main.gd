@@ -6,6 +6,10 @@ onready var Game         = preload("res://scenes/Game/Game.tscn"   )
 onready var Options      = preload("res://scenes/Options.tscn"     )
 onready var Debug_Menu   = preload("res://scenes/Debug Menu.tscn"  )
 
+# Themes
+var lightmode = preload("res://assets/backgrounds/Background_Light.png");
+var darkmode = preload("res://assets/backgrounds/Background_Dark.png");
+
 #flags
 var power_saving = true
 var debug_enabled = true
@@ -21,6 +25,7 @@ func _ready():
 	_errno += MessageBus.connect("list_scenes"    , self, "_on_scene_list"         )
 	_errno += MessageBus.connect("quit"           , self, "_on_quit_request"       )
 	_errno += MessageBus.connect("return_to_title", self, "_on_title_request"      )
+	_errno += OptionsController.connect("change_theme", self, "_on_change_theme"   )
 	# go fullscreen
 	OS.low_processor_usage_mode = power_saving
 	OS.low_processor_usage_mode_sleep_usec = 6800
@@ -93,3 +98,9 @@ func _on_quit_request():
 # Kills the current tree and replaces it with a new one
 func _on_title_request():
 	return get_tree().change_scene("res://scenes/Main.tscn")
+	
+func _on_change_theme(theme):
+	if theme == "light":
+		get_node("Background").set_texture(lightmode)
+	elif theme == "dark":
+		get_node("Background").set_texture(darkmode)
