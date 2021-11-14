@@ -58,7 +58,10 @@ func display_turn():
 
 func _on_Forfeit_pressed():
 	AudioBus.emit_signal("button_clicked")
-	end()
+	get_node("ConfirmationDialog").popup()
 
 func end():
 	queue_free()
+
+func _on_ConfirmationDialog_confirmed():
+	end()
