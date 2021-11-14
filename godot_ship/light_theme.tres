@@ -3,7 +3,7 @@
 [ext_resource path="res://assets/font/Minecraft.ttf" type="DynamicFontData" id=1]
 
 [sub_resource type="StyleBoxFlat" id=4]
-bg_color = Color( 0.239216, 0.211765, 0.317647, 1 )
+bg_color = Color( 1, 1, 1, 1 )
 corner_radius_top_left = 3
 corner_radius_top_right = 3
 corner_radius_bottom_right = 3
@@ -11,18 +11,18 @@ corner_radius_bottom_left = 3
 shadow_size = 4
 
 [sub_resource type="StyleBoxFlat" id=1]
-bg_color = Color( 0.109804, 0.0862745, 0.172549, 1 )
+bg_color = Color( 0.847059, 0.921569, 0.964706, 1 )
 corner_radius_top_left = 3
 corner_radius_top_right = 3
 corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
 shadow_size = 3
 
-[sub_resource type="DynamicFont" id=3]
+[sub_resource type="DynamicFont" id=2]
 outline_color = Color( 0, 0, 0, 1 )
 font_data = ExtResource( 1 )
 
-[sub_resource type="DynamicFont" id=2]
+[sub_resource type="DynamicFont" id=3]
 outline_color = Color( 0, 0, 0, 1 )
 extra_spacing_top = 5
 extra_spacing_bottom = 3
@@ -30,11 +30,11 @@ extra_spacing_char = 1
 font_data = ExtResource( 1 )
 
 [resource]
-default_font = SubResource( 2 )
-Button/colors/font_color = Color( 1, 1, 1, 1 )
+default_font = SubResource( 3 )
+Button/colors/font_color = Color( 0.0784314, 0.0784314, 0.0784314, 1 )
 Button/colors/font_color_disabled = Color( 0.9, 0.9, 0.9, 0.2 )
-Button/colors/font_color_hover = Color( 1, 1, 1, 1 )
-Button/colors/font_color_pressed = Color( 1, 1, 1, 1 )
+Button/colors/font_color_hover = Color( 0, 0, 0, 1 )
+Button/colors/font_color_pressed = Color( 0, 0, 0, 1 )
 Button/constants/hseparation = 2
 Button/fonts/font = null
 Button/styles/disabled = null
@@ -51,7 +51,7 @@ Label/constants/line_spacing = 3
 Label/constants/shadow_as_outline = 0
 Label/constants/shadow_offset_x = 0
 Label/constants/shadow_offset_y = 0
-Label/fonts/font = SubResource( 3 )
+Label/fonts/font = SubResource( 2 )
 Label/styles/normal = null
 WindowDialog/colors/title_color = Color( 0.152941, 0.152941, 0.152941, 1 )
 WindowDialog/constants/close_h_ofs = 18

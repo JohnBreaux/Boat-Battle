@@ -7,8 +7,10 @@ onready var Options      = preload("res://scenes/Options.tscn"     )
 onready var Debug_Menu   = preload("res://scenes/Debug Menu.tscn"  )
 
 # Themes
-var lightmode = preload("res://assets/backgrounds/Background_Light.png");
-var darkmode = preload("res://assets/backgrounds/Background_Dark.png");
+var lightmode = preload("res://assets/backgrounds/Background_Light.png")
+var darkmode = preload("res://assets/backgrounds/Background_Dark.png")
+var light_theme = load("res://light_theme.tres")
+var dark_theme = load("res://dark_theme.tres")
 
 #flags
 var power_saving = true
@@ -104,5 +106,7 @@ func _on_title_request():
 func _on_change_theme(theme):
 	if theme == "light":
 		get_node("Background").set_texture(lightmode)
+		self.set_theme(light_theme)
 	elif theme == "dark":
 		get_node("Background").set_texture(darkmode)
+		self.set_theme(dark_theme)

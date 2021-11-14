@@ -5,6 +5,9 @@ class ShipData:
 	var Length: int
 	var Orientation: bool #vertical is true, (Trueship = vertical) (Falseship = horizontal)
 
+var light_theme = load("res://light_theme.tres")
+var dark_theme = load("res://dark_theme.tres")
+
 # Preloaded assets, to be used later
 # TODO: Move Setup into the Player. It's just here, for now, so that it can be tested and the game doesn't appear broken
 onready var Setup = preload("res://scenes/Game/Setup.tscn")
@@ -27,6 +30,7 @@ var hit = false
 # TODO: Multiplayer
 var is_multiplayer = false
 
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	# TODO: Move Setup into the Player.
@@ -36,6 +40,12 @@ func _ready():
 	
 	get_node("ConfirmationDialog").get_ok().text = "Yes"
 	get_node("ConfirmationDialog").get_cancel().text = "No"
+	get_node("ConfirmationDialog").get_ok().rect_min_size.x = 100
+	get_node("ConfirmationDialog").get_cancel().rect_min_size.x = 100
+	
+	var _errno = 0;
+	_errno += OptionsController.connect("change_theme", self, "_on_change_theme")
+	_on_change_theme(OptionsController.get_theme())
 
 # TODO: Move Setup into the Player.
 func game_setup(_ships):
@@ -73,3 +83,9 @@ func _on_Button_button_down():
 
 func _on_ConfirmationDialog_confirmed():
 	end()
+
+func _on_change_theme(theme):
+	if theme == "light":
+		get_node("Buttons").set_theme(light_theme)
+	elif theme == "dark":
+		get_node("Buttons").set_theme(dark_theme)

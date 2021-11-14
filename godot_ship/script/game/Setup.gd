@@ -6,6 +6,9 @@ onready var Ships = ["2Ship", "3ShipA", "3ShipB", "4Ship", "5Ship"]
 
 onready var Victory = preload("res://scenes/Game/Player.tscn")
 
+var light_theme = load("res://light_theme.tres")
+var dark_theme = load("res://dark_theme.tres")
+
 class ShipData:
 	var Position: Vector2
 	var Length: int
@@ -15,7 +18,12 @@ class ShipData:
 func _ready():
 	# Moves the focus to this menu
 	if find_next_valid_focus(): find_next_valid_focus().grab_focus()
-
+	
+	get_node("PlaceShipDialog").get_ok().rect_min_size.x = 50
+	
+	var _errno = 0;
+	_errno += OptionsController.connect("change_theme", self, "_on_change_theme")
+	_on_change_theme(OptionsController.get_theme())
 
 func _on_Confirm_Placement_pressed():
 	# Make the button noise
@@ -53,3 +61,9 @@ func _on_Clear_pressed():
 	for ship in Ships:
 		get_node(ship).clear()
 	pass # Replace with function body.
+	
+func _on_change_theme(theme):
+	if theme == "light":
+		self.set_theme(light_theme)
+	elif theme == "dark":
+		self.set_theme(dark_theme)

@@ -16,16 +16,16 @@ anchor_left = 0.912
 anchor_top = 0.932
 anchor_right = 0.912
 anchor_bottom = 0.932
-margin_left = -3.68005
-margin_top = -4.52002
-margin_right = 49.3199
-margin_bottom = 15.48
+margin_left = -37.68
+margin_top = -329.52
+margin_right = 50.32
+margin_bottom = -305.52
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="Forfeit" type="Button" parent="Buttons"]
-margin_right = 53.0
+margin_right = 88.0
 margin_bottom = 20.0
 text = "Forfeit"
 
@@ -47,10 +47,11 @@ __meta__ = {
 }
 
 [node name="Button" type="Button" parent="."]
-margin_left = 599.361
-margin_top = 2.97302
-margin_right = 636.361
-margin_bottom = 22.973
+visible = false
+margin_left = 6.4668
+margin_top = 6.14783
+margin_right = 43.4668
+margin_bottom = 26.1478
 text = "Win"
 
 [connection signal="pressed" from="Buttons/Forfeit" to="." method="_on_Forfeit_pressed"]
