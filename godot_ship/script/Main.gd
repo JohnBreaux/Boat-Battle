@@ -26,6 +26,8 @@ func _ready():
 	_errno += MessageBus.connect("quit"           , self, "_on_quit_request"       )
 	_errno += MessageBus.connect("return_to_title", self, "_on_title_request"      )
 	_errno += OptionsController.connect("change_theme", self, "_on_change_theme"   )
+	# Set the theme based on the config file
+	_on_change_theme(OptionsController.get_theme())
 	# go fullscreen
 	OS.low_processor_usage_mode = power_saving
 	OS.low_processor_usage_mode_sleep_usec = 6800
