@@ -46,29 +46,16 @@ func getSunk():
 # returns an array of the positions that the ship occupies
 func getExtent():
 	var extent = []
-	
+	# Find each tile of the ship
 	for i in size:
-		var x = boardposition.x - int(!orientation) * ((size - 1) / 2) + int(!orientation) * i
-		var y = boardposition.y - orientation * ((size - 1) / 2) + orientation * i
-		print(Vector2(x,y))
-	
-	#vertical orientation
-	if orientation == 1:
-		for i in size:
-			var pos = Vector2(0,0)
-			pos.x = boardposition.x
-			pos.y = boardposition.y - ((size - 1) / 2) + i
-			extent.append(pos)
-	#horizontal orientation
-	if orientation == 0:
-		for i in size:
-			var pos = Vector2(0,0)
-			pos.x = boardposition.x - ((size - 1) / 2) + i
-			pos.y = boardposition.y
-			extent.append(pos)
-	print(extent)
+		# Calculate the x axis position
+		var x = boardposition.x - (1 - orientation) * ( (size - 1) / 2 - i )
+		# Calculate the y axis position
+		var y = boardposition.y - orientation * ( (size - 1) / 2 - i )
+		# Append the point onto the array
+		extent.push_back(Vector2(x,y))
 	return extent
-	
+
 # generates a texture at the spot (index should start at 0)
 func texture(index):
 	var state = 0 # floating
