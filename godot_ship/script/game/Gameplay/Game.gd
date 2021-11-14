@@ -33,6 +33,9 @@ func _ready():
 	var setup = Setup.instance()
 	setup.connect("game_ready", self, "game_setup")
 	add_child(setup)
+	
+	get_node("ConfirmationDialog").get_ok().text = "Yes"
+	get_node("ConfirmationDialog").get_cancel().text = "No"
 
 # TODO: Move Setup into the Player.
 func game_setup(_ships):
@@ -57,14 +60,16 @@ func display_turn():
 
 func _on_Forfeit_pressed():
 	AudioBus.emit_signal("button_clicked")
-	end()
+	get_node("ConfirmationDialog").popup()
 
 func end():
 	queue_free()
-
 
 func _on_Button_button_down():
 	AudioBus.emit_signal("button_clicked")
 	var victory = Victory.instance()
 	add_child(victory)
 	victory.connect("exit_main", self, "end")
+
+func _on_ConfirmationDialog_confirmed():
+	end()

@@ -11,5 +11,5 @@ dest_files=[ "res://.import/SunkSFX.ogg-52b6d419298328defecfc61b6c15659d.oggstr"
 
 [params]
 
-loop=true
+loop=false
 loop_offset=0

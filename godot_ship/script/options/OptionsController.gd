@@ -8,9 +8,9 @@ signal change_theme (theme)
 var f = File.new()
 var options_file = "user://options.save"
 var theme = "dark"
-var mas_vol = 0
-var mus_vol = 0
-var sfx_vol = 0
+var mas_vol = linear2db(1)
+var mus_vol = linear2db(1)
+var sfx_vol = linear2db(1)
 
 func _ready():
 	load_options()
@@ -23,6 +23,7 @@ func set_theme(theme_name):
 			save_options()
 			emit_signal("change_theme", theme)
 	save_options()
+	
 func set_vol(volume, type):
 	if type == "mas_vol":
 		mas_vol = volume
@@ -61,7 +62,7 @@ func load_options():
 		mus_vol = f.get_var()
 		sfx_vol = f.get_var()
 		f.close()
-		AudioServer.set_bus_volume_db(AudioServer.get_bus_index("Master"), mus_vol)
+		AudioServer.set_bus_volume_db(AudioServer.get_bus_index("Master"), mas_vol)
 		AudioServer.set_bus_volume_db(AudioServer.get_bus_index("BGM"), mus_vol)
 		AudioServer.set_bus_volume_db(AudioServer.get_bus_index("SFX"), sfx_vol)
 
