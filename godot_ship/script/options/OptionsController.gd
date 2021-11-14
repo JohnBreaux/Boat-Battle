@@ -23,6 +23,7 @@ func set_theme(theme_name):
 			save_options()
 			emit_signal("change_theme", theme)
 	save_options()
+	
 func set_vol(volume, type):
 	if type == "mas_vol":
 		mas_vol = volume
