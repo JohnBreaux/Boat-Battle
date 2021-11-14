@@ -38,29 +38,33 @@ func _input(event):
 # Ensure the scene doesn't become empty
 func _process(_delta):
 	# Make sure there's something running
+	# Background counts as one child
 	# Debug counts as one child
-	if get_child_count() < 1 + int(debug_enabled):
+	if get_child_count() < 2 + int(debug_enabled):
 		MessageBus.emit_signal("change_scene", "Title")
 		pass
 
 # Creates a new instance of each menu scene
 func _on_scene_start(scene):
+	var instance
 	#print ("_on_scene_start(",scene,")")
 	match scene:
 		"Singleplayer": 
-			add_child (Game.instance())
+			instance = Game.instance()
+			add_child (instance)
 			return true
 		"Multiplayer": 
-			var game = Game.instance()
-			game.is_multiplayer = true
-			add_child (game)
-			# add_child (multiplayercontroller.instance())
+			instance = Game.instance()
+			instance.is_multiplayer = true
+			add_child (instance)
 			return true
 		"Options": 
-			add_child (Options.instance())
+			instance = Options.instance()
+			add_child (instance)
 			return true
 		"Title": 
-			add_child (Title_Screen.instance())
+			instance = Title_Screen.instance()
+			add_child (instance)
 			return true
 
 func _on_scene_start_by_name(scene):
