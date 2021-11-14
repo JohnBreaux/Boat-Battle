@@ -13,7 +13,6 @@ __meta__ = {
 }
 
 [node name="Background" type="TextureRect" parent="."]
-visible = false
 margin_right = 40.0
 margin_bottom = 40.0
 texture = ExtResource( 1 )
