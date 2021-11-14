@@ -1,8 +1,6 @@
 [gd_scene load_steps=2 format=2]
 
-[ext_resource path="res://assets/backgrounds/Background_Dark.png" type="Texture" id=1]
 [ext_resource path="res://script/game/Gameplay/Game.gd" type="Script" id=3]
-
 
 [node name="Game" type="Control"]
 anchor_right = 1.0
@@ -30,5 +28,23 @@ __meta__ = {
 margin_right = 53.0
 margin_bottom = 20.0
 text = "Forfeit"
+
+[node name="ConfirmationDialog" type="ConfirmationDialog" parent="."]
+visible = true
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -111.5
+margin_top = -29.0
+margin_right = 111.5
+margin_bottom = 29.0
+rect_min_size = Vector2( 150, 52.5 )
+window_title = "Forfeit Confirmation..."
+dialog_text = "Are you sure you want to forfeit?"
+__meta__ = {
+"_edit_use_anchors_": false,
+"_editor_description_": ""
+}
 
 [connection signal="pressed" from="Buttons/Forfeit" to="." method="_on_Forfeit_pressed"]

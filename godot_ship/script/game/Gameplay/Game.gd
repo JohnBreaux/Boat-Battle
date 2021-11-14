@@ -31,6 +31,9 @@ func _ready():
 	var setup = Setup.instance()
 	setup.connect("game_ready", self, "game_setup")
 	add_child(setup)
+	
+	get_node("ConfirmationDialog").get_ok().text = "Yes"
+	get_node("ConfirmationDialog").get_cancel().text = "No"
 
 # TODO: Move Setup into the Player.
 func game_setup(_ships):
