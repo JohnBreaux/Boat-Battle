@@ -46,5 +46,13 @@ __meta__ = {
 "_editor_description_": ""
 }
 
+[node name="Button" type="Button" parent="."]
+margin_left = 599.361
+margin_top = 2.97302
+margin_right = 636.361
+margin_bottom = 22.973
+text = "Win"
+
 [connection signal="pressed" from="Buttons/Forfeit" to="." method="_on_Forfeit_pressed"]
 [connection signal="confirmed" from="ConfirmationDialog" to="." method="_on_ConfirmationDialog_confirmed"]
+[connection signal="button_down" from="Button" to="." method="_on_Button_button_down"]
