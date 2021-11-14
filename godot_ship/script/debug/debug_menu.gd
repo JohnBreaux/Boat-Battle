@@ -539,16 +539,21 @@ func command_script(command):
 				script.push_back(f.get_line())
 			f.close()
 			# Save state and turn off echo
+			var state = {"echo": echo, 
+						 "pwn": present_working_node, 
+						 "history_pos": history_pos,
+						 "history": history,
+						 "expression": expression}
 			echo = false
-			var pwn = present_working_node
-			var h = history_pos
 			# Execute the script
 			for cmd in script:
 				_on_LineEdit_text_entered(cmd)
-			# Restore state and turn on echo
-			present_working_node = pwn
-			history_pos = h
-			echo = true
+			# Restore state
+			echo = state["echo"]
+			present_working_node = state["pwn"]
+			history_pos = state["history_pos"]
+			history = state["history"]
+			expression = state["expression"]
 		else:
 			debug_print_line("File not found: " + command[1] + "\n")
 	else:
