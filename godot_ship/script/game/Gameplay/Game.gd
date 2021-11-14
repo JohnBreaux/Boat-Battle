@@ -12,7 +12,7 @@ onready var Setup = preload("res://scenes/Game/Setup.tscn")
 onready var Fire  = preload("res://scenes/Game/Fire.tscn")
 
 # Path to Player class, for instantiating new Players in code
-var Player = "res://script/game/Gameplay/Player.gd"
+onready var Player = preload("res://scenes/Game/Player.tscn")
 
 
 # Array of instances of the Player class; stores the Players
@@ -45,10 +45,12 @@ func game_start():
 
 #   victory_screen: display the victory screen
 func victory_screen():
+	# TODO: Create the victory screen, fill it with knowledge
 	pass
 
 #   display_turn(): display which turn it is on the screen
 func display_turn():
+	# TODO: Update the turn display, if there is one?
 	pass
 
 func _on_Forfeit_pressed():
