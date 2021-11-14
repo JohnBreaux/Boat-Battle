@@ -11,6 +11,9 @@ var menu_velocity = 4
 var history : Array = []
 var history_pos = 0
 
+# Controls whether to print to the screen
+var echo = true
+
 onready var expression = Expression.new()
 
 # helptext: args list and help blurb accessed by function name
@@ -38,7 +41,8 @@ var helptext = {
 	"command_getprop":       [" prop",             "Get the value of property prop\n"                         ],
 	"command_setprop":       [" prop value",       "Set the property prop to value.\n"                        ],
 
-	"command_script":        [" path",             "Load and execute a script at a given path.\n"              ],
+	"command_script":        [" path",             "Load and execute a script at a given path.\n"             ],
+	"command_echo":          [" on/off",           "Controls whether lines should be printed to the screen\n" ],
 	"command_restart":       ["",                  "Kill the current scene tree and plant a new Root.\n"      ],
 	"command_exit":          ["",                  "Quits the program.\n"                                     ],
 
@@ -72,6 +76,7 @@ var commands = {
 	["setprop","set", "s"]:         "command_setprop",
 
 	["script", "sh"]:               "command_script",
+	["@echo"]:                      "command_echo",
 	["restart", "killall"]:         "command_restart",
 	["exit", "quit"]:               "command_exit",
 
@@ -158,14 +163,13 @@ func _input(event):
 #     params: line: Line of text entered by user
 #     returns: void
 func _on_LineEdit_text_entered(line):
-	if line != "":
-		history_append(line)
 	emit_signal("clear_in")
 	debug_print_line(line + "\n")
 	var command = line.split(' ', true, 1)
 	var command_func = parse(command[0])
 	if command_func:
 		call(command_func, command)
+		history_append(line)
 	else:
 		debug_print_line("dbg: command not found: " + command[0] + "\n")
 	debug_print_line("> ")
@@ -197,7 +201,8 @@ func history_move(rel_pos):
 #     params: string: Text string to print
 #     returns: void
 func debug_print_line(string):
-	emit_signal("print_text", string.c_unescape())
+	if echo:
+		emit_signal("print_text", string.c_unescape())
 
 #   get_pwn: get the present working node if valid, otherwise cd to root
 func get_pwn():
@@ -282,7 +287,7 @@ func string_to_variant(string, type):
 			res = null
 		TYPE_BOOL:
 			match string.to_lower():
-				"true", "1", "ok":
+				"true", "1", "ok", "on":
 					res = true
 				_:
 					res = false
@@ -532,10 +537,20 @@ func command_script(command):
 			while not f.eof_reached():
 				script.push_back(f.get_line())
 			f.close()
+			echo = false
+			var h = history_pos
 			for cmd in script:
 				_on_LineEdit_text_entered(cmd)
+			history_pos = h
+			echo = true
 		else:
 			debug_print_line("File not found: " + command[1] + "\n")
+	else:
+		debug_print_line(get_usage(command[0]))
+
+func command_echo(command):
+	if command.size() > 1:
+		echo = string_to_variant(command[1], TYPE_BOOL)
 	else:
 		debug_print_line(get_usage(command[0]))
 
