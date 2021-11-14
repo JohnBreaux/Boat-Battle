@@ -1,10 +1,10 @@
 extends Control
 
 # Scenes
-onready var title_screen = preload("res://scenes/Title Screen.tscn")
-onready var game         = preload("res://scenes/Game/Game.tscn"   )
-onready var options      = preload("res://scenes/Options.tscn"     )
-onready var debug_menu   = preload("res://scenes/Debug Menu.tscn"  )
+onready var Title_Screen = preload("res://scenes/Title Screen.tscn")
+onready var Game         = preload("res://scenes/Game/Game.tscn"   )
+onready var Options      = preload("res://scenes/Options.tscn"     )
+onready var Debug_Menu   = preload("res://scenes/Debug Menu.tscn"  )
 
 #flags
 var power_saving = true
@@ -26,7 +26,7 @@ func _ready():
 	OS.low_processor_usage_mode_sleep_usec = 6800
 	OS.window_fullscreen = start_fullscreen
 	if debug_enabled:
-		add_child(debug_menu.instance())
+		add_child(Debug_Menu.instance())
 
 # Process global keybinds
 func _input(event):
@@ -48,19 +48,19 @@ func _on_scene_start(scene):
 	#print ("_on_scene_start(",scene,")")
 	match scene:
 		"Singleplayer": 
-			add_child (game.instance())
+			add_child (Game.instance())
 			return true
 		"Multiplayer": 
-			game = game.instance()
+			var game = Game.instance()
 			game.is_multiplayer = true
 			add_child (game)
 			# add_child (multiplayercontroller.instance())
 			return true
 		"Options": 
-			add_child (options.instance())
+			add_child (Options.instance())
 			return true
 		"Title": 
-			add_child (title_screen.instance())
+			add_child (Title_Screen.instance())
 			return true
 
 func _on_scene_start_by_name(scene):
