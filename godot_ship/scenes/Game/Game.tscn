@@ -39,4 +39,12 @@ margin_right = 53.0
 margin_bottom = 20.0
 text = "Forfeit"
 
+[node name="Button" type="Button" parent="."]
+margin_left = 593.0
+margin_top = 3.0
+margin_right = 636.0
+margin_bottom = 23.0
+text = "Win"
+
 [connection signal="pressed" from="Buttons/Forfeit" to="." method="_on_Forfeit_pressed"]
+[connection signal="button_down" from="Button" to="." method="_on_Button_button_down"]

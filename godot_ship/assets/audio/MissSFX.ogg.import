@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/MissSFX.ogg-d7b93821aa1c2b607fa4dc4bb3561322.oggstr"
+
+[deps]
+
+source_file="res://assets/audio/MissSFX.ogg"
+dest_files=[ "res://.import/MissSFX.ogg-d7b93821aa1c2b607fa4dc4bb3561322.oggstr" ]
+
+[params]
+
+loop=true
+loop_offset=0
