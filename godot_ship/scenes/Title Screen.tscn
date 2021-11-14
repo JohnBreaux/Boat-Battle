@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=2]
 
-[ext_resource path="res://script/title screen/Title-Screen-Background.png" type="Texture" id=1]
+[ext_resource path="res://assets/backgrounds/dark.png" type="Texture" id=1]
 [ext_resource path="res://script/title screen/Title Screen.gd" type="Script" id=2]
 [ext_resource path="res://assets/font/Minecraft.ttf" type="DynamicFontData" id=3]
 
