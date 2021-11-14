@@ -15,16 +15,13 @@ func _ready():
 #func _process(delta):
 #	pass
 
-
-# returns player(s) back to main menu
-func _on_Button_pressed():
-	AudioBus.emit_signal("button_clicked")
-	#MessageBus.emit_signal("change_scene", "Title")
-	emit_signal("exit_main")
-
-
 func _on_restart_button_down():
 	AudioBus.emit_signal("button_clicked")
 	#MessageBus.emit_signal("change_scene", "Multiplayer")
 	pass # Replace with function body.
- 
+
+# returns player(s) back to main menu
+func _on_exit_to_main_button_down():
+	AudioBus.emit_signal("button_clicked")
+	#MessageBus.emit_signal("change_scene", "Title")
+	emit_signal("exit_main")
