@@ -10,9 +10,9 @@ onready var theme_buttons = find_node("Buttons", true, true).get_children()
 func _ready():
 	OptionsController.load_options()
 	find_next_valid_focus().grab_focus()
-	master_slider.value = OptionsController.get_mas_volume()
-	music_slider.value = OptionsController.get_mus_volume()
-	sound_slider.value = OptionsController.get_sfx_volume()
+	master_slider.value = db2linear(OptionsController.get_mas_volume())
+	music_slider.value = db2linear(OptionsController.get_mus_volume())
+	sound_slider.value = db2linear(OptionsController.get_sfx_volume())
 
 func _on_Button_pressed():
 	AudioBus.emit_signal("button_clicked")
@@ -20,14 +20,17 @@ func _on_Button_pressed():
 	#MessageBus.emit_signal("change_scene", "Title")
 
 func _on_Master_Slider_value_changed(value):
+	value = linear2db(value)
 	AudioBus.emit_signal("button_clicked")
 	OptionsController.set_vol(value, "mas_vol")
 
 func _on_Music_Slider_value_changed(value):
+	value = linear2db(value)
 	AudioBus.emit_signal("button_clicked")
 	OptionsController.set_vol(value, "mus_vol")
 
 func _on_SFX_Slider_value_changed(value):
+	value = linear2db(value)
 	AudioBus.emit_signal("button_clicked")
 	OptionsController.set_vol(value, "sfx_vol")
 
