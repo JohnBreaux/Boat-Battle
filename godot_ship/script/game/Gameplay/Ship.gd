@@ -6,9 +6,9 @@ extends Control
 enum Orientation {X = 0, Y = 1}
 
 # Size of ship in board units
-var size
+var size = 2
 # Coordinates of ship's center. Ship extends [-(size-1 >> 1), (size/2 >> 1)]
-var boardposition
+var boardposition = Vector2(-1,-1)
 # Variable storing whether the ship is sunk, for rendering purposes
 var sunk = false
 # Orientation of the ship (see enum Orientation)
@@ -46,17 +46,23 @@ func getSunk():
 # returns an array of the positions that the ship occupies
 func getExtent():
 	var extent = []
+	
+	for i in size:
+		var x = boardposition.x - int(!orientation) * ((size - 1) / 2) + int(!orientation) * i
+		var y = boardposition.y - orientation * ((size - 1) / 2) + orientation * i
+		print(Vector2(x,y))
+	
 	#vertical orientation
 	if orientation == 1:
 		for i in size:
-			var pos
+			var pos = Vector2(0,0)
 			pos.x = boardposition.x
 			pos.y = boardposition.y - ((size - 1) / 2) + i
 			extent.append(pos)
 	#horizontal orientation
 	if orientation == 0:
 		for i in size:
-			var pos
+			var pos = Vector2(0,0)
 			pos.x = boardposition.x - ((size - 1) / 2) + i
 			pos.y = boardposition.y
 			extent.append(pos)

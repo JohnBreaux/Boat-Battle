@@ -38,6 +38,7 @@ var helptext = {
 	"command_getprop":       [" prop",             "Get the value of property prop\n"                         ],
 	"command_setprop":       [" prop value",       "Set the property prop to value.\n"                        ],
 
+	"command_script":        [" path",             "Load and execute a script at a given path.\n"              ],
 	"command_restart":       ["",                  "Kill the current scene tree and plant a new Root.\n"      ],
 	"command_exit":          ["",                  "Quits the program.\n"                                     ],
 
@@ -70,6 +71,7 @@ var commands = {
 	["getprop","get", "g"]:         "command_getprop",
 	["setprop","set", "s"]:         "command_setprop",
 
+	["script", "sh"]:               "command_script",
 	["restart", "killall"]:         "command_restart",
 	["exit", "quit"]:               "command_exit",
 
@@ -516,6 +518,24 @@ func command_perf(command):
 			debug_print_line(String(stat) + "\n")
 		else:
 			debug_print_line("null\n")
+	else:
+		debug_print_line(get_usage(command[0]))
+
+#   script: run a script from user://
+func command_script(command):
+	var script = []
+	if (command.size() > 1):
+		var path = "user://" + command[1]
+		var f = File.new()
+		var err = f.open(path, File.READ)
+		if err == OK:
+			while not f.eof_reached():
+				script.push_back(f.get_line())
+			f.close()
+			for cmd in script:
+				_on_LineEdit_text_entered(cmd)
+		else:
+			debug_print_line("File not found: " + command[1] + "\n")
 	else:
 		debug_print_line(get_usage(command[0]))
 
