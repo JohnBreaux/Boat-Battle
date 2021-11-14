@@ -1,4 +1,4 @@
-extends Node
+extends Control
 
 # This is the rendered element of a "ship", generated when the game transitions from the placing state to the gameplay state
 
