@@ -2,8 +2,8 @@ extends Node
 
 # This is the rendered element of a "ship", generated when the game transitions from the placing state to the gameplay state
 
-# Enum denoting the orientation (X is 1, Y is 0)
-enum Orientation {X = 1, Y = 0}
+# Enum denoting the orientation (X is 0, Y is 1)
+enum Orientation {X = 0, Y = 1}
 
 # Size of ship in board units
 var size
@@ -41,6 +41,24 @@ func getOrientation():
 func getSunk():
 	return sunk
 
+func getExtent():
+	var extent = []
+	#vertical orientation
+	if orientation == 1:
+		for i in size:
+			var pos
+			pos.x = position.x
+			pos.y = position.y - ((size - 1) / 2) + i
+			extent.append(pos)
+	#horizontal orientation
+	if orientation == 0:
+		for i in size:
+			var pos
+			pos.x = position.x - ((size - 1) / 2) + i
+			pos.y = position.y
+			extent.append(pos)
+	print(extent)
+	return extent
 #   setSunk: sink the ship
 func setSunk():
 	sunk = true
