@@ -41,7 +41,7 @@ var helptext = {
 	"command_getprop":       [" prop",             "Get the value of property prop\n"                         ],
 	"command_setprop":       [" prop value",       "Set the property prop to value.\n"                        ],
 
-	"command_script":        [" path",             "Load and execute a script at a given path.\n"             ],
+	"command_script":        [" path",             "Load and execute a script at user://scripts/<name>\n"     ],
 	"command_echo":          [" on/off",           "Controls whether lines should be printed to the screen\n" ],
 	"command_restart":       ["",                  "Kill the current scene tree and plant a new Root.\n"      ],
 	"command_exit":          ["",                  "Quits the program.\n"                                     ],
@@ -80,7 +80,7 @@ var commands = {
 	["restart", "killall"]:         "command_restart",
 	["exit", "quit"]:               "command_exit",
 
-	[""]:                           "command_empty"
+	["", "#"]:                      "command_empty"
 }
 
 #List of all of Godot's builtin types
@@ -526,21 +526,27 @@ func command_perf(command):
 	else:
 		debug_print_line(get_usage(command[0]))
 
-#   script: run a script from user://
+#   script: run a script from user://scripts/
 func command_script(command):
 	var script = []
 	if (command.size() > 1):
-		var path = "user://" + command[1]
+		var path = "user://scripts/" + command[1]
 		var f = File.new()
 		var err = f.open(path, File.READ)
 		if err == OK:
+			# Read the file
 			while not f.eof_reached():
 				script.push_back(f.get_line())
 			f.close()
+			# Save state and turn off echo
 			echo = false
+			var pwn = present_working_node
 			var h = history_pos
+			# Execute the script
 			for cmd in script:
 				_on_LineEdit_text_entered(cmd)
+			# Restore state and turn on echo
+			present_working_node = pwn
 			history_pos = h
 			echo = true
 		else:
