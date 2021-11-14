@@ -158,7 +158,7 @@ func _input(event):
 		#traverse history down
 		history_move(+1)
 
-# Signal-processing functions:
+# Command-processing functions:
 #   _on_LineEdit_text_entered: process incoming text line
 #     params: line: Line of text entered by user
 #     returns: void
@@ -166,13 +166,20 @@ func _on_LineEdit_text_entered(line):
 	emit_signal("clear_in")
 	debug_print_line(line + "\n")
 	var command = line.split(' ', true, 1)
-	var command_func = parse(command[0])
-	if command_func:
-		call(command_func, command)
+	if execute_command(command):
 		history_append(line)
 	else:
 		debug_print_line("dbg: command not found: " + command[0] + "\n")
 	debug_print_line("> ")
+
+#   execute_command: execute a line of text as a command
+#     params: command: partially tokenized PoolStringArray ["command_alias", "parameters ..."]
+#     returns: name of executed function, or null if nothing executed
+func execute_command(command):
+	var command_func = parse(command[0])
+	if command_func:
+		call(command_func, command)
+	return command_func
 
 # History_related helper functions:
 #   history_append: add a line of text to the history
@@ -376,7 +383,7 @@ func command_restart (_command):
 #   print: prints a message to the in-game debug console
 func command_print(command):
 	if command.size() > 1:
-		debug_print_line(command[1] + "\n")
+		debug_print_line(command[1])
 	else:
 		debug_print_line("\n")
 
@@ -547,7 +554,8 @@ func command_script(command):
 			echo = false
 			# Execute the script
 			for cmd in script:
-				_on_LineEdit_text_entered(cmd)
+				cmd = cmd.split(' ', true, 1)
+				execute_command(cmd)
 			# Restore state
 			echo = state["echo"]
 			present_working_node = state["pwn"]
