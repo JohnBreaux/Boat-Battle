@@ -11,5 +11,5 @@ dest_files=[ "res://.import/MissSFX.ogg-d7b93821aa1c2b607fa4dc4bb3561322.oggstr"
 
 [params]
 
-loop=true
+loop=false
 loop_offset=0
