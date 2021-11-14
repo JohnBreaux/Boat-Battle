@@ -1,0 +1,51 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://script/game/Victory.gd" type="Script" id=1]
+[ext_resource path="res://assets/font/Minecraft.ttf" type="DynamicFontData" id=2]
+
+[sub_resource type="DynamicFont" id=1]
+size = 40
+font_data = ExtResource( 2 )
+
+[node name="Victory" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="."]
+margin_left = 118.32
+margin_top = 44.5109
+margin_right = 260.32
+margin_bottom = 84.5109
+size_flags_vertical = 0
+custom_fonts/font = SubResource( 1 )
+text = "Victory"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Button" type="Button" parent="."]
+margin_left = 541.0
+margin_top = 327.85
+margin_right = 636.0
+margin_bottom = 353.85
+text = "Exit to Main"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Button2" type="Button" parent="."]
+visible = false
+margin_left = 2.22023
+margin_top = 337.41
+margin_right = 63.2202
+margin_bottom = 357.41
+text = "Restart"
+
+[connection signal="pressed" from="Button" to="." method="_on_Button_pressed"]
+[connection signal="button_down" from="Button2" to="." method="_on_restart_button_down"]

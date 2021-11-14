@@ -58,10 +58,9 @@ focus_neighbour_top = NodePath("../../../Back")
 focus_neighbour_bottom = NodePath("../../Volume Setting/Volume Slider")
 focus_next = NodePath("../../Volume Setting/Volume Slider")
 focus_previous = NodePath("../../../Back")
-min_value = -25.0
-max_value = 0.0
+max_value = 1.0
+step = 0.05
 tick_count = 10
-ticks_on_borders = true
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -90,10 +89,9 @@ focus_neighbour_top = NodePath("../../SFX Setting/SFX Slider")
 focus_neighbour_bottom = NodePath("../../../Buttons/Dark")
 focus_next = NodePath("../../../Buttons/Dark")
 focus_previous = NodePath("../../SFX Setting/SFX Slider")
-min_value = -50.0
-max_value = 0.0
+max_value = 1.0
+step = 0.05
 tick_count = 10
-ticks_on_borders = true
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -117,10 +115,9 @@ margin_left = 64.0
 margin_top = 48.0
 margin_right = 208.0
 margin_bottom = 64.0
-min_value = -50.0
-max_value = 0.0
+max_value = 1.0
+step = 0.05
 tick_count = 10
-ticks_on_borders = true
 __meta__ = {
 "_edit_use_anchors_": false
 }

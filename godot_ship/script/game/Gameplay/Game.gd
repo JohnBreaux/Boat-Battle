@@ -14,6 +14,8 @@ onready var Fire  = preload("res://scenes/Game/Fire.tscn")
 # Path to Player class, for instantiating new Players in code
 onready var Player = preload("res://scenes/Game/Player.tscn")
 
+onready var Victory = preload("res://scenes/Game/Victory.tscn")
+
 
 # Array of instances of the Player class; stores the Players
 var players # = player1, player2, ...
@@ -62,6 +64,12 @@ func _on_Forfeit_pressed():
 
 func end():
 	queue_free()
+
+func _on_Button_button_down():
+	AudioBus.emit_signal("button_clicked")
+	var victory = Victory.instance()
+	add_child(victory)
+	victory.connect("exit_main", self, "end")
 
 func _on_ConfirmationDialog_confirmed():
 	end()
