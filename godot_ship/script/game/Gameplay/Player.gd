@@ -25,19 +25,16 @@ func hit(pos):
 
 #   place_ship: called when ships are placed.
 #     forwards Ship locations to the Board, so that it may construct a ship
-#     ship: a list of ship properties {position, orientation, size}
-#		NOTE: Variant? Assuming _ship is an array of lists of ship properties
-func place_ship(_ship):
-	for i in _ship:
-		board.place_ship(i)
-	pass
+#     ship: a list of ship properties {position, orientation, size, variant}
+func place_ship(pos, size, orientation, variant):
+	board.place_ship(pos, size, orientation, variant)
 
 #   setUp: set up the board given the placed ship locations
 #     translates the ship positions in the Setup UI to board-space, then places each ship
-#     ships: a list of lists of ship properties {{position, orientation, size}, ...}
-#		NOTE: What is the difference place_ship() and set_up()
-func set_up(_ships):
-	pass
+#     ships: a list of lists of ship properties {{position, orientation, size, variant}, ...}
+func set_up(ships):
+	for i in ships:
+		place_ship(ships[i].Position, ships[i].Size, ships.Orientation, ships[i].Variant)
 
 #   turnStart: start player's turn
 #     Initiates the player's turn, and blocks until the player selects a location to fire upon
