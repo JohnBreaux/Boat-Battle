@@ -11,7 +11,7 @@ onready var Victory = preload("res://scenes/Game/Victory.tscn")
 
 
 # Array of instances of the Player class; stores the Players
-var players # = player1, player2, ...
+var players = [] # = player1, player2, ...
 # turn counter
 var turn = 0
 # Variable transporting hit state between players
@@ -32,14 +32,23 @@ func _ready():
 	var _errno = 0;
 	_errno += OptionsController.connect("change_theme", self, "_on_change_theme")
 	_on_change_theme(OptionsController.get_theme())
+	game_start()
 
-# TODO: Move Setup into the Player.
-func game_setup(_ships):
+func game_setup():
 	print_debug("Congrats! Setup complete.")
 
 # Member functions:
 #   game_start: starts the game
 func game_start():
+	# Create a player 1
+	var player = Player.instance()
+	# TODO: Create valid callback for player_ready
+	# It shouldn't connect to game_setup
+	player.connect("player_ready", self, "game_setup")
+	# Add player to scene tree
+	add_child(player)
+	# Add player to players
+	players.append(player)
 	pass
 
 #   victory_screen: display the victory screen

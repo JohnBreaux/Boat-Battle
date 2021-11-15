@@ -16,7 +16,7 @@ var sunk = false
 # Orientation of the ship (see enum Orientation)
 var orientation = Orientation.Y
 # array of spots thats been hit
-var hit = []
+var hits = []
 # Variable storing the positions of each piece of the ship
 var extents = []
 
@@ -50,7 +50,7 @@ func hit(pos):
 	# If that position exists:
 	if (index > -1):
 		# Hit the ship piece at that location
-		hit[index] = true
+		hits[index] = true
 		res = HIT
 		# Decrement its health
 		health -= 1
@@ -85,7 +85,7 @@ func get_extent():
 # Update textures
 func texture(index):
 	var state = 0 # ready
-	if(hit[index]):
+	if(hits[index]):
 		state = 1 # hit
 	var textureSize = 32
 	# It's okay to create a new texture every time, as resources are refcounted
@@ -140,7 +140,7 @@ func _init(in_position = Vector2(0,0), in_size = 0, in_orientation = Orientation
 	# Set the ship's variant(A, B, ... )
 	variant = in_variant
 	# Resize the size-based arrays
-	hit.resize(in_size)
+	hits.resize(in_size)
 	sprites.resize(in_size)
 	# Update the extents and draw the textures
 	update()

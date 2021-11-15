@@ -1,7 +1,7 @@
 extends Node2D
 
 # Path to Ship class, for instantiating new Ships in code
-onready var Ship = load("res://script/game/Gameplay/Ship.gd")
+var Ship = preload("res://scenes/Game/Ship.tscn")
 
 # Consts and enums
 const NO_SHIP = -1
@@ -62,7 +62,8 @@ func fire(pos, res):
 
 # Place a ship on the board at board-space coordinates
 func place_ship(in_position, in_size, in_orientation, in_variant = 0):
-	var ship = Ship.new(in_position, in_size, in_orientation, in_variant)
+	var ship = Ship.instance()
+	ship._init(in_position, in_size, in_orientation, in_variant)
 	for pos in ship.get_extent():
 		bottom_board[pos.x][pos.y] = [ships.size(), READY]
 	ships.append(ship)

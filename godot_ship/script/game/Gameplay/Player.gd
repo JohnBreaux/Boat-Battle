@@ -1,23 +1,26 @@
 extends Node
 
 # Path to Board class, for instantiating new Boards in code
-var Board = "res://script/game/Gameplay/Board.gd"
+var Board = preload("res://scenes/Game/Board.tscn")
 
 # Preloaded assets, to be used later
 # TODO: Move Setup into the Player. It's just here, for now, so that it can be tested and the game doesn't appear broken
-onready var Setup = preload("res://scenes/Game/Setup.tscn")
+var Setup = preload("res://scenes/Game/Setup.tscn")
 # TODO: Move Fire into the Player. See above.
-onready var Fire  = preload("res://scenes/Game/Fire.tscn")
+var Fire  = preload("res://scenes/Game/Fire.tscn")
+
+signal player_ready
+
 
 # Player ID of this player
 var pid
 # board (an instance of the Board class)
-onready var board = Board.new()
+onready var board = Board.instance()
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	var setup = Setup.instance()
-	setup.connect("game_ready", self, "game_setup")
+	setup.connect("board_ready", self, "set_up")
 	add_child(setup)
 
 # Member functions:
@@ -39,10 +42,14 @@ func place_ship(pos, size, orientation, variant):
 
 #   setUp: set up the board given the placed ship locations
 #     translates the ship positions in the Setup UI to board-space, then places each ship
-#     ships: a list of lists of ship properties {{position, orientation, size, variant}, ...}
+#     ships: a list of lists of ship properties [[position, orientation, size, variant], ...]
 func set_up(ships):
+	# Place all the ships
 	for i in ships:
-		place_ship(ships[i].Position, ships[i].Size, ships.Orientation, ships[i].Variant)
+		place_ship(i[0], i[1], i[2], i[3])
+	emit_signal("player_ready")
+	# Add the board to the tree
+	add_child(board)
 
 #   turnStart: start player's turn
 #     Initiates the player's turn, and blocks until the player selects a location to fire upon

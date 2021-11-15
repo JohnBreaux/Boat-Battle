@@ -1,10 +1,8 @@
 extends Control
 
-signal game_ready
+signal board_ready
 
 onready var Ships = ["2Ship", "3ShipA", "3ShipB", "4Ship", "5Ship"]
-
-onready var Victory = preload("res://scenes/Game/Player.tscn")
 
 var light_theme = load("res://light_theme.tres")
 var dark_theme = load("res://dark_theme.tres")
@@ -40,25 +38,16 @@ func _on_Confirm_Placement_pressed():
 		get_node("PlaceShipDialog").popup()
 	else:
 		#Saves the location of ships and length of ship into an array
-		var shipLocation = []
+		var ship_data = []
 		for ship in Ships:
-			var shipdata = ShipData.new()
-			shipdata.Position = get_node(ship).position
-			shipdata.Length = get_node(ship).get("ship_length")
-			shipdata.Orientation = get_node(ship).get("vertical")
-			match ship:
-				"3ShipB":
-					shipdata.Variant = 1
-				_:
-					shipdata.Variant = 0
-			shipLocation.append(shipdata)
-		
+			ship = get_node(ship)
+			var data = ship.get_shipdata()
+			ship_data.append(data)
 		#print out the array for testing
-		for x in shipLocation:
-			print("Ship Length: ", x.Length, ", Ship Orientation: ", x.Orientation, ", Ship Position: ", x.Position)
-		
+		for x in ship_data:
+			print_debug("Ship Position: ", x[0], ", Ship Length: ", x[1], ", Ship Orientation: ", x[2], ", Variant: ", x[3])
 		# Return the shipLocation array to those listening on game_ready
-		emit_signal("game_ready", shipLocation)
+		emit_signal("board_ready", ship_data)
 		queue_free()
 	return valid # Replace with function body.
 
