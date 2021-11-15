@@ -13,6 +13,7 @@ class ShipData:
 	var Position: Vector2
 	var Length: int
 	var Orientation: bool # (True = vertical) (False = horizontal)
+	var Variant: int = 0
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -41,11 +42,16 @@ func _on_Confirm_Placement_pressed():
 		#Saves the location of ships and length of ship into an array
 		var shipLocation = []
 		for ship in Ships:
-			var location = ShipData.new()
-			location.Position = get_node(ship).position
-			location.Length = get_node(ship).get("ship_length")
-			location.Orientation = get_node(ship).get("vertical")
-			shipLocation.append(location)
+			var shipdata = ShipData.new()
+			shipdata.Position = get_node(ship).position
+			shipdata.Length = get_node(ship).get("ship_length")
+			shipdata.Orientation = get_node(ship).get("vertical")
+			match ship:
+				"3ShipB":
+					shipdata.Variant = 1
+				_:
+					shipdata.Variant = 0
+			shipLocation.append(shipdata)
 		
 		#print out the array for testing
 		for x in shipLocation:
