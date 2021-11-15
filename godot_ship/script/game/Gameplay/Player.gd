@@ -3,6 +3,12 @@ extends Node
 # Path to Board class, for instantiating new Boards in code
 var Board = "res://script/game/Gameplay/Board.gd"
 
+# Preloaded assets, to be used later
+# TODO: Move Setup into the Player. It's just here, for now, so that it can be tested and the game doesn't appear broken
+onready var Setup = preload("res://scenes/Game/Setup.tscn")
+# TODO: Move Fire into the Player. See above.
+onready var Fire  = preload("res://scenes/Game/Fire.tscn")
+
 # Player ID of this player
 var pid
 # board (an instance of the Board class)
@@ -10,7 +16,9 @@ onready var board = Board.new()
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	pass # Replace with function body.
+	var setup = Setup.instance()
+	setup.connect("game_ready", self, "game_setup")
+	add_child(setup)
 
 # Member functions:
 #   hit: Called when opponent fires on us.
@@ -40,6 +48,8 @@ func set_up(ships):
 #     Initiates the player's turn, and blocks until the player selects a location to fire upon
 #     returns: fire = [player id, target coordinates]
 func turnStart():
+	# TODO: Yielf until Fire return
+	add_child(Fire.instance())
 	var player_id = 0
 	var target = Vector2(0,0)
 	return [player_id, target]
