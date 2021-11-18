@@ -1,4 +1,4 @@
-extends Node
+extends Control
 
 var light_theme = load("res://light_theme.tres")
 var dark_theme = load("res://dark_theme.tres")
@@ -11,15 +11,16 @@ onready var Victory = preload("res://scenes/Game/Victory.tscn")
 
 
 # Array of instances of the Player class; stores the Players
-var players = [] # = player1, player2, ...
+var players = {} # = player1, player2, ...
+var players_ready = []
 # turn counter
 var turn = 0
-# Variable transporting hit state between players
-var hit = false
-# Variable tracking whether a game is multiplayer (so that the correct Player type can be spawned)
-# TODO: Multiplayer
-var is_multiplayer = false
+# winner
+var winner = 0
 
+# Every game is a multiplayer game, even the ones that aren't.
+# We're taking the Minecraft approach, baby
+var network_id
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -29,27 +30,69 @@ func _ready():
 	get_node("ConfirmationDialog").get_ok().rect_min_size.x = 100
 	get_node("ConfirmationDialog").get_cancel().rect_min_size.x = 100
 	
-	var _errno = 0;
-	_errno += OptionsController.connect("change_theme", self, "_on_change_theme")
-	_on_change_theme(OptionsController.get_theme())
-	game_start()
+	if multiplayer:
+		# TODO: Spawn a lobby where people can either connect to a peer or create a server
+		pass
+	
+	game_setup()
 
-func game_setup():
-	print_debug("Congrats! Setup complete.")
+# Function used to keep track of which players are ready
+remote func player_ready(pid):
+	print (get_tree().is_network_server())
+	var who = pid
+	# Here are some checks you can do, for example
+	assert(get_tree().is_network_server())
+	assert(who in Network.peer_info) # Exists
+	assert(not who in players_ready) # Was not added yet
+
+	players_ready.append(who)
+
+	if players_ready.size() == Network.peer_info.size():
+		rpc("game_start")
 
 # Member functions:
 #   game_start: starts the game
-func game_start():
-	# Create a player 1
-	var player = Player.instance()
-	# TODO: Create valid callback for player_ready
-	# It shouldn't connect to game_setup
-	player.connect("player_ready", self, "game_setup")
-	# Add player to scene tree
-	add_child(player)
-	# Add player to players
-	players.append(player)
+func game_setup():
+	# If there's no server connected, create one
+	if not Network.connected:
+		# TODO: Create a fake peer who we can automate, for single-player mode
+		Network.start_server()
+	network_id = Network.get_network_id()
+	# Create players for every player in Network.peer_info
+	for k in Network.peer_info.keys():
+		# Create a new player
+		var player = Player.instance()
+		# Set the player's opponent, for now
+		# Give the player a recognizable name, like "1", instead of "@@97"
+		player.name = str(k)
+		# The player controls themselves
+		player.set_network_master(k)
+		# Add the player to the list of players
+		players[k] = player
+		# Add the player to the scene tree
+		add_child(player)
 	pass
+	
+	# Connect to your own player_ready signal
+	players[network_id].connect("player_ready", self, "_on_player_ready")
+	# Have your player set up the board:
+	players[network_id].set_up_begin()
+
+func game_start():
+	# Make sure we're the server
+	assert(get_tree().is_network_server())
+	while not winner:
+		for id in players.keys():
+			var hit = players[id].rpc_id(id, "turn_start")
+			var result = players[hit["id"]].rpc_id(hit["id"], "hit", hit["target"])
+			players[id].rpc_id(id, "mark", hit["target"], result)
+		pass
+
+func _on_player_ready(pid):
+	print ("_on_player_ready")
+	match pid:
+		1: player_ready(pid)
+		_: rpc("player_ready", pid)
 
 #   victory_screen: display the victory screen
 func victory_screen():
@@ -77,8 +120,3 @@ func _on_Button_button_down():
 func _on_ConfirmationDialog_confirmed():
 	end()
 
-func _on_change_theme(theme):
-	if theme == "light":
-		get_node("Buttons").set_theme(light_theme)
-	elif theme == "dark":
-		get_node("Buttons").set_theme(dark_theme)

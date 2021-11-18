@@ -7,11 +7,9 @@ func _ready():
 # Signal to pass the fire location back to yet-unknown nodes
 signal fire_at
 
-
 func _on_Fire_pressed():
 	var crosshair = get_node("Crosshair")
-	# hides crosshair
-	crosshair.visible = false
+	# Check if the crosshair is in a valid position
 	if crosshair.validate_position(crosshair.position) == true:
 		var crosshair_pos = crosshair.world_to_board_space(crosshair.position)
 		# fires at position

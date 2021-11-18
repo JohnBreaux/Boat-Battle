@@ -20,6 +20,7 @@ MessageBus="*res://script/Message Bus.gd"
 AudioBus="*res://script/audio controller/Audio Bus.gd"
 OptionsController="*res://script/options/OptionsController.gd"
 AudioController="*res://scenes/AudioController.tscn"
+Network="*res://script/network/Network.gd"
 
 [display]
 

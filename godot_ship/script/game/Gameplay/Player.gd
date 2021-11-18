@@ -1,38 +1,46 @@
 extends Node
 
-# Path to Board class, for instantiating new Boards in code
-var Board = preload("res://scenes/Game/Board.tscn")
-
-# Preloaded assets, to be used later
-# TODO: Move Setup into the Player. It's just here, for now, so that it can be tested and the game doesn't appear broken
-var Setup = preload("res://scenes/Game/Setup.tscn")
-# TODO: Move Fire into the Player. See above.
-var Fire  = preload("res://scenes/Game/Fire.tscn")
-
+# Emitted when the player is ready
 signal player_ready
 
 
-# Player ID of this player
-var pid
-# board (an instance of the Board class)
-onready var board = Board.instance()
+# Preloaded assets, to be used later
+# Path to Board class, for instantiating new Boards in code
+var Board = preload("res://scenes/Game/Board.tscn")
+# Path to Setup menu, so the player may set up their Board
+var Setup = preload("res://scenes/Game/Setup.tscn")
+# Path to Fire menu, so the player may fire on the opponent
+var Fire  = preload("res://scenes/Game/Fire.tscn")
+
+var pid #   Player ID
+var board # Board
+
+var fire_at_position # Position to fire at
+var opponent_pid     # PID of opponent
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	# Set the player ID according to which network peer ID we are
+	pid = int(name)
+	board = Board.instance()
+
+remote func set_up_begin():
 	var setup = Setup.instance()
 	setup.connect("board_ready", self, "set_up")
 	add_child(setup)
 
 # Member functions:
 #   hit: Called when opponent fires on us.
-#     Update internal state, and return bool hit/miss, hit = true, miss = false
-func hit(pos):
+#     Update internal state, and return hit/miss/sunk
+remote func hit(pos):
 	var res = board.hit(pos)
-	if res == -1:
-		return true
-	else:
-		return false
-	pass
+	return res
+
+#   mark: Called when the opponent returns hit/miss/sunk
+#     Update internal state, return ack/nak
+remote func mark(pos, value):
+	# Mark the position on the top board
+	board.fire(pos, value)
 
 #   place_ship: called when ships are placed.
 #     forwards Ship locations to the Board, so that it may construct a ship
@@ -40,27 +48,32 @@ func hit(pos):
 func place_ship(pos, size, orientation, variant):
 	board.place_ship(pos, size, orientation, variant)
 
-#   setUp: set up the board given the placed ship locations
-#     translates the ship positions in the Setup UI to board-space, then places each ship
+#   setup: set up the board given the placed ship locations
+#     Places each ship onto the board
 #     ships: a list of lists of ship properties [[position, orientation, size, variant], ...]
 func set_up(ships):
 	# Place all the ships
 	for i in ships:
 		place_ship(i[0], i[1], i[2], i[3])
-	emit_signal("player_ready")
 	# Add the board to the tree
 	add_child(board)
+	emit_signal("player_ready", pid)
 
-#   turnStart: start player's turn
+#   turn_start: start player's turn
 #     Initiates the player's turn, and blocks until the player selects a location to fire upon
 #     returns: fire = [player id, target coordinates]
-func turnStart():
-	# TODO: Yielf until Fire return
-	add_child(Fire.instance())
-	var player_id = 0
-	var target = Vector2(0,0)
-	return [player_id, target]
-	pass
+remote func turn_start():
+	print("turn_start")
+	var fire = Fire.instance()
+	
+	add_child(fire)
+	yield(fire, "fire_at")
+	while not fire_at_position:
+		pass
+	var player_id = opponent_pid
+	var target = fire_at_position
+	fire_at_position = null
+	return {"id": player_id, "target": target}
 
 #   getBoard: returns the player's board
 #     returns: board
@@ -69,18 +82,17 @@ func getBoard():
 
 #   forfeit: ends game for player
 #     Sinks all ships
-#		hits every single board tile
+#		Ensures there are no ships left behind
 func forfeit():
 	for i in 10:
 		for j in 10:
-			var pos
-			pos.x = i
-			pos.y = j
-			hit(pos)
+			# Hit the board
+			hit(Vector2(i, j))
 
 #   getShipCount: get the number of ships the player has left alive
 func getShipCount():
-	var count = board.get_ship_count()
-	return count
-	pass
+	return board.get_ship_count()
 
+
+func _on_fire_at(pos):
+	fire_at_position = pos

@@ -33,7 +33,6 @@ func _on_Confirm_Placement_pressed():
 		# if this is more than zero, the ship is invalid
 		if get_node(ship).validate_placement():
 			valid = false
-	print ("Placement: ", valid)
 	if valid == false:
 		get_node("PlaceShipDialog").popup()
 	else:
@@ -43,9 +42,6 @@ func _on_Confirm_Placement_pressed():
 			ship = get_node(ship)
 			var data = ship.get_shipdata()
 			ship_data.append(data)
-		#print out the array for testing
-		for x in ship_data:
-			print_debug("Ship Position: ", x[0], ", Ship Length: ", x[1], ", Ship Orientation: ", x[2], ", Variant: ", x[3])
 		# Return the shipLocation array to those listening on game_ready
 		emit_signal("board_ready", ship_data)
 		queue_free()
