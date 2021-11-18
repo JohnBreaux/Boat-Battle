@@ -37,15 +37,11 @@ func _ready():
 	game_setup()
 
 # Function used to keep track of which players are ready
-remote func player_ready(pid):
-	print (get_tree().is_network_server())
-	var who = pid
-	# Here are some checks you can do, for example
-	assert(get_tree().is_network_server())
-	assert(who in Network.peer_info) # Exists
-	assert(not who in players_ready) # Was not added yet
-
-	players_ready.append(who)
+mastersync func player_ready():
+	var who = get_tree().get_rpc_sender_id()
+	if get_tree().is_network_server() and who in Network.peer_info and not who in players_ready:
+		print ("ASSERT SUCCESS")
+		players_ready.append(who)
 
 	if players_ready.size() == Network.peer_info.size():
 		rpc("game_start")
@@ -58,11 +54,13 @@ func game_setup():
 		# TODO: Create a fake peer who we can automate, for single-player mode
 		Network.start_server()
 	network_id = Network.get_network_id()
+	var count = 0
 	# Create players for every player in Network.peer_info
 	for k in Network.peer_info.keys():
 		# Create a new player
 		var player = Player.instance()
 		# Set the player's opponent, for now
+		player.opponent_pid = Network.peer_info.keys()[1 - count]
 		# Give the player a recognizable name, like "1", instead of "@@97"
 		player.name = str(k)
 		# The player controls themselves
@@ -71,28 +69,28 @@ func game_setup():
 		players[k] = player
 		# Add the player to the scene tree
 		add_child(player)
+		count += 1
 	pass
-	
 	# Connect to your own player_ready signal
 	players[network_id].connect("player_ready", self, "_on_player_ready")
 	# Have your player set up the board:
 	players[network_id].set_up_begin()
 
-func game_start():
+mastersync func game_start():
 	# Make sure we're the server
 	assert(get_tree().is_network_server())
 	while not winner:
 		for id in players.keys():
+			# TODO: RPC always returns nothing.
+			# Figure out how to work around this.
 			var hit = players[id].rpc_id(id, "turn_start")
 			var result = players[hit["id"]].rpc_id(hit["id"], "hit", hit["target"])
 			players[id].rpc_id(id, "mark", hit["target"], result)
 		pass
 
-func _on_player_ready(pid):
+func _on_player_ready():
 	print ("_on_player_ready")
-	match pid:
-		1: player_ready(pid)
-		_: rpc("player_ready", pid)
+	rpc_id(1, "player_ready")
 
 #   victory_screen: display the victory screen
 func victory_screen():

@@ -24,7 +24,7 @@ func _ready():
 	pid = int(name)
 	board = Board.instance()
 
-remote func set_up_begin():
+mastersync func set_up_begin():
 	var setup = Setup.instance()
 	setup.connect("board_ready", self, "set_up")
 	add_child(setup)
@@ -32,13 +32,13 @@ remote func set_up_begin():
 # Member functions:
 #   hit: Called when opponent fires on us.
 #     Update internal state, and return hit/miss/sunk
-remote func hit(pos):
+mastersync func hit(pos):
 	var res = board.hit(pos)
 	return res
 
 #   mark: Called when the opponent returns hit/miss/sunk
 #     Update internal state, return ack/nak
-remote func mark(pos, value):
+mastersync func mark(pos, value):
 	# Mark the position on the top board
 	board.fire(pos, value)
 
@@ -57,12 +57,12 @@ func set_up(ships):
 		place_ship(i[0], i[1], i[2], i[3])
 	# Add the board to the tree
 	add_child(board)
-	emit_signal("player_ready", pid)
+	emit_signal("player_ready")
 
 #   turn_start: start player's turn
 #     Initiates the player's turn, and blocks until the player selects a location to fire upon
 #     returns: fire = [player id, target coordinates]
-remote func turn_start():
+mastersync func turn_start():
 	print("turn_start")
 	var fire = Fire.instance()
 	
