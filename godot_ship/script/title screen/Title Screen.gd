@@ -25,6 +25,11 @@ func _on_Options_pressed():
 	MessageBus.emit_signal("change_scene", "Options")
 	queue_free()
 
+func _on_Credits_pressed():
+	AudioBus.emit_signal("button_clicked")
+	MessageBus.emit_signal("change_scene", "Credits")
+	queue_free()
+
 func _on_Quit_pressed():
 	AudioBus.emit_signal("button_clicked")
 	MessageBus.emit_signal("quit")
