@@ -20,7 +20,7 @@ MessageBus="*res://script/Message Bus.gd"
 AudioBus="*res://script/audio controller/Audio Bus.gd"
 OptionsController="*res://script/options/OptionsController.gd"
 AudioController="*res://scenes/AudioController.tscn"
-Network="*res://script/network/Network.gd"
+Net="*res://script/network/Net.gd"
 
 [display]
 
@@ -30,6 +30,10 @@ window/dpi/allow_hidpi=true
 window/per_pixel_transparency/allowed=true
 window/stretch/mode="viewport"
 window/stretch/aspect="keep"
+
+[global]
+
+verbose=false
 
 [input]
 

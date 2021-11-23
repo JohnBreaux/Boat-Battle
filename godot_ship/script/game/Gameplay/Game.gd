@@ -5,13 +5,13 @@ var dark_theme = load("res://dark_theme.tres")
 
 
 # Path to Player class, for instantiating new Players in code
-onready var Player = preload("res://scenes/Game/Player.tscn")
+var Player = preload("res://scenes/Game/Player.tscn")
 
-onready var Victory = preload("res://scenes/Game/Victory.tscn")
+var Victory = preload("res://scenes/Game/Victory.tscn")
 
 
 # Array of instances of the Player class; stores the Players
-var players = {} # = player1, player2, ...
+var players = [] # = player1, player2, ...
 var players_ready = []
 # turn counter
 var turn = 0
@@ -37,56 +37,40 @@ func _ready():
 	game_setup()
 
 # Function used to keep track of which players are ready
-mastersync func player_ready():
+func player_ready():
 	var who = get_tree().get_rpc_sender_id()
-	if get_tree().is_network_server() and who in Network.peer_info and not who in players_ready:
+	if get_tree().is_network_server() and who in Net.peer_info and not who in players_ready:
 		print ("ASSERT SUCCESS")
 		players_ready.append(who)
 
-	if players_ready.size() == Network.peer_info.size():
+	if players_ready.size() == Net.peer_info.size():
 		rpc("game_start")
 
 # Member functions:
 #   game_start: starts the game
-func game_setup():
+sync func game_setup():
 	# If there's no server connected, create one
-	if not Network.connected:
+	if not Net.connected:
 		# TODO: Create a fake peer who we can automate, for single-player mode
-		Network.start_server()
-	network_id = Network.get_network_id()
-	var count = 0
-	# Create players for every player in Network.peer_info
-	for k in Network.peer_info.keys():
+		Net.start_host()
+	network_id = Net.get_network_id()
+	# Create players for every player in Net.peer_info
+	for k in Net.peer_info.keys():
 		# Create a new player
 		var player = Player.instance()
-		# Set the player's opponent, for now
-		player.opponent_pid = Network.peer_info.keys()[1 - count]
 		# Give the player a recognizable name, like "1", instead of "@@97"
 		player.name = str(k)
 		# The player controls themselves
 		player.set_network_master(k)
 		# Add the player to the list of players
-		players[k] = player
+		players.append(player)
 		# Add the player to the scene tree
 		add_child(player)
-		count += 1
 	pass
-	# Connect to your own player_ready signal
-	players[network_id].connect("player_ready", self, "_on_player_ready")
-	# Have your player set up the board:
-	players[network_id].set_up_begin()
 
-mastersync func game_start():
+func game_start():
 	# Make sure we're the server
-	assert(get_tree().is_network_server())
-	while not winner:
-		for id in players.keys():
-			# TODO: RPC always returns nothing.
-			# Figure out how to work around this.
-			var hit = players[id].rpc_id(id, "turn_start")
-			var result = players[hit["id"]].rpc_id(hit["id"], "hit", hit["target"])
-			players[id].rpc_id(id, "mark", hit["target"], result)
-		pass
+	pass
 
 func _on_player_ready():
 	print ("_on_player_ready")

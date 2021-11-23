@@ -3,7 +3,6 @@ extends Node
 # Emitted when the player is ready
 signal player_ready
 
-
 # Preloaded assets, to be used later
 # Path to Board class, for instantiating new Boards in code
 var Board = preload("res://scenes/Game/Board.tscn")
@@ -12,33 +11,33 @@ var Setup = preload("res://scenes/Game/Setup.tscn")
 # Path to Fire menu, so the player may fire on the opponent
 var Fire  = preload("res://scenes/Game/Fire.tscn")
 
-var pid #   Player ID
+# Members
+var pid   # Player ID
 var board # Board
 
 var fire_at_position # Position to fire at
-var opponent_pid     # PID of opponent
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	# Set the player ID according to which network peer ID we are
 	pid = int(name)
-	board = Board.instance()
 
-mastersync func set_up_begin():
+func set_up_begin():
 	var setup = Setup.instance()
 	setup.connect("board_ready", self, "set_up")
 	add_child(setup)
+	board = Board.instance()
 
 # Member functions:
 #   hit: Called when opponent fires on us.
 #     Update internal state, and return hit/miss/sunk
-mastersync func hit(pos):
+func hit(pos):
 	var res = board.hit(pos)
 	return res
 
 #   mark: Called when the opponent returns hit/miss/sunk
 #     Update internal state, return ack/nak
-mastersync func mark(pos, value):
+func mark(pos, value):
 	# Mark the position on the top board
 	board.fire(pos, value)
 
@@ -62,7 +61,7 @@ func set_up(ships):
 #   turn_start: start player's turn
 #     Initiates the player's turn, and blocks until the player selects a location to fire upon
 #     returns: fire = [player id, target coordinates]
-mastersync func turn_start():
+func turn_start():
 	print("turn_start")
 	var fire = Fire.instance()
 	
@@ -70,10 +69,9 @@ mastersync func turn_start():
 	yield(fire, "fire_at")
 	while not fire_at_position:
 		pass
-	var player_id = opponent_pid
 	var target = fire_at_position
 	fire_at_position = null
-	return {"id": player_id, "target": target}
+	return target
 
 #   getBoard: returns the player's board
 #     returns: board
