@@ -65,7 +65,6 @@ func _on_scene_start(scene):
 			return true
 		"Multiplayer": 
 			instance = Game.instance()
-			instance.is_multiplayer = true
 			add_child (instance)
 			return true
 		"Options": 
