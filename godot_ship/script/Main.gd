@@ -4,6 +4,7 @@ extends Control
 onready var Title_Screen = preload("res://scenes/Title Screen.tscn")
 onready var Game         = preload("res://scenes/Game/Game.tscn"   )
 onready var Options      = preload("res://scenes/Options.tscn"     )
+onready var Credits      = preload("res://scenes/Credits.tscn"     )
 onready var Debug_Menu   = preload("res://scenes/Debug Menu.tscn"  )
 
 # Themes
@@ -69,6 +70,10 @@ func _on_scene_start(scene):
 			return true
 		"Options": 
 			instance = Options.instance()
+			add_child (instance)
+			return true
+		"Credits":
+			instance = Credits.instance()
 			add_child (instance)
 			return true
 		"Title": 
