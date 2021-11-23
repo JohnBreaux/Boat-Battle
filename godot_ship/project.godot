@@ -12,6 +12,7 @@ config_version=4
 
 config/name="godot_ship"
 run/main_scene="res://scenes/Main.tscn"
+boot_splash/image="res://assets/backgrounds/splash_image.png"
 config/icon="res://icon.png"
 config/macos_native_icon="res://icon.icns"
 config/windows_native_icon="res://icon.ico"
