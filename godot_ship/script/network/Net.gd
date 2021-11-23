@@ -36,11 +36,14 @@ sync func receive(mail):
 	# Sent it off to anything that expects mail
 	emit_signal("incoming", mail)
 
+#   send: Called when sending a message
+#     id: Peer ID of the recipient
+#     mail: Variant of a json-encodable type (non-Object) to send
 func send(id, mail):
 	# Make the recipient receive the mail
 	rpc_id(id, "receive", to_json(mail))
 
-#   start_server: Host the game
+#   start_host: Host the game
 #     port: TCP port
 #     max_players: Largest number of players allowed to connect at a time
 func start_host(port = DEFAULT_PORT, max_players = 2):
@@ -53,13 +56,14 @@ func start_host(port = DEFAULT_PORT, max_players = 2):
 	hosting = true
 	return
 
-#   connect_server: Connect to a host
+#   connect_host: Connect to a host
 func connect_host(ip = LOCALHOST, port = DEFAULT_PORT):
 	get_hostname()
 	var peer = NetworkedMultiplayerENet.new()
 	peer.create_client(ip, port)
 	get_tree().network_peer = peer
 
+#   disconnect_host
 func disconnect_host():
 	# Set state to disconnected
 	connected = false
