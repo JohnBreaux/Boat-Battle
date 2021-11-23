@@ -5,12 +5,13 @@ const LOCALHOST = "127.0.0.1"
 
 signal incoming
 
+# Let's pretend this is actually passed from send to receive
 class Mail:
-	var from
+	# Sender address
+	var from:int
 	var message
-	var type
-	func _init(f, m, t):
-		from = f; message = m; type = t
+	var type:int
+	enum {FROM, MESSAGE, TYPE}
 	enum {REPLY, REQUEST}
 
 # Store peer info in a dictionary, by player ID
@@ -27,16 +28,17 @@ var inbox = []
 # Network -- handles server and client setup, and facilitates communication between the two
 #   receive: Called when an incoming message is received
 #     item: The message received from the sender
-remote func receive(mail:Mail):
+sync func receive(mail):
 	# Get the sender's ID and force letter to be properly addressed
-	mail.from = get_tree().get_rpc_sender_id()
-	print_debug(mail.from, mail.message, mail.type)
+	mail[0] = get_tree().get_rpc_sender_id()
+	# Add the mail to the inbox (so it can be read back later if necessary
+	inbox.append(mail)
 	# Sent it off to anything that expects mail
 	emit_signal("incoming", mail)
 
-func send(id, mail:Mail):
+func send(id, mail):
 	# Make the recipient receive the mail
-	rpc_id(id, "receive", mail)
+	rpc_id(id, "receive", to_json(mail))
 
 #   start_server: Host the game
 #     port: TCP port
