@@ -10,15 +10,15 @@ const LOCALHOST = "127.0.0.1"
 #   Mail types:
 #     1: REQUEST: Message is a request for information
 #     0: REPLY: Message is a reply
-enum {REPLY, REQUEST}
+enum {REPLY, REQUEST, READY, ACK}
 
 # Signals
 #   incoming(mail): Sent when there's an incoming message
 signal incoming
 #   peers_updated(): Sent when the peer list is updated
 signal peers_updated
-#
-
+#   disconnected():  Sent when unexpectedly disconnected
+signal disconnected
 # Variables
 #   inbox: Array: Message history
 var inbox = []
@@ -33,8 +33,9 @@ var local_info = {"name": ""}
 
 # Network -- handles server and client setup, and facilitates communication between the two
 #   receive: Receive a message (called by sender's `send` function)
-#     item: The message received from the sender (implicitly JSON-decoded by JSONRPC)
-sync func receive(mail):
+#     mail: The message received from the sender (implicitly JSON-decoded by JSONRPC)
+#     mail_type: Type of mail (see "Mail Types" enum above)
+remote func receive(mail):
 	# Get the sender's ID and force letter to be properly addressed
 	mail[0] = get_tree().get_rpc_sender_id()
 	# Add the mail to the inbox (so it can be read back later if necessary
@@ -45,10 +46,12 @@ sync func receive(mail):
 #   send: Send a message
 #     id: Peer ID of the recipient
 #     mail: Variant of a json-encodable type (non-Object) to send
-func send(id, mail):
+#     mail_type: Type of mail (see "Mail Types" enum above)
+func send(id, mail, mail_type = REPLY):
 	# Make the recipient receive the mail
-	rpc_id(id, "receive", to_json(mail))
+	rpc_id(id, "receive", to_json([-1, mail, mail_type]))
 
+# Host
 #   start_host: Host the game
 #     port: TCP port
 #     max_players: Largest number of players allowed to connect at a time
@@ -67,12 +70,20 @@ func start_host(port = DEFAULT_PORT, max_players = 2):
 	connected = true
 	hosting = true
 
+#   accept_guests:
+#     Select whether to accept new guests
+func accept_guests(accept:bool):
+	if hosting:
+		multiplayer.refuse_new_network_connections = not accept
+
+# Guest
 #   connect_host: Connect to a host
 func connect_host(ip = LOCALHOST, port = DEFAULT_PORT):
 	get_hostname()
 	var peer = NetworkedMultiplayerENet.new()
-	peer.create_client(ip, port)
+	var ret = peer.create_client(ip, port)
 	get_tree().network_peer = peer
+	return ret
 
 #   disconnect_host
 func disconnect_host():
@@ -99,6 +110,7 @@ func change_name(name):
 	rpc("register_peer", local_info)
 	pass
 
+# Helper Functions
 #   get_hostname: Asks the host machine to provide its hostname,
 #     and if the peer name isn't set, set it to the hostname
 func get_hostname():
@@ -125,15 +137,19 @@ func _ready():
 	_trash = get_tree().connect("server_disconnected",       self, "_host_disconnected")
 	_trash = get_tree().connect("connection_failed",         self, "_connection_fail"  )
 
-
+# Signal Handlers
 func _peer_connected(id):
 	# Send peer info to remote peer
 	rpc_id(id, "register_peer", local_info)
+	if hosting and peer_info.size() >= 2:
+		pass
 	pass
 
 func _peer_disconnected(id):
 	# Unregister the peer locally
 	unregister_peer(id)
+	if hosting and peer_info.size() < 2:
+		pass
 	pass
 
 
@@ -147,6 +163,8 @@ func _host_connected():
 func _host_disconnected():
 	# Ensure host is disconnected
 	disconnect_host()
+	# Send disconnection message to listeners
+	emit_signal("disconnected")
 
 func _connection_fail():
 	# Ensure Net state is clear
