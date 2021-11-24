@@ -66,12 +66,8 @@ func turn_start():
 	var fire = Fire.instance()
 	
 	add_child(fire)
-	yield(fire, "fire_at")
-	while not fire_at_position:
-		pass
-	var target = fire_at_position
-	fire_at_position = null
-	return target
+	var pos = yield(fire, "fire_at")
+	return pos
 
 #   getBoard: returns the player's board
 #     returns: board
