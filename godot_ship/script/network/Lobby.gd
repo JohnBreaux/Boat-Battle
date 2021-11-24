@@ -44,7 +44,7 @@ func _on_Host_Button_pressed():
 	# Begin hosting
 	Net.start_host()
 
-#   Disconnect 
+#   Disconnect
 #     Disconnect from (or stop hosting) a game
 #     Shows the host/connect buttons
 func _on_Disconnect_Button_pressed():
