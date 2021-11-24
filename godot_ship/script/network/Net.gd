@@ -1,33 +1,39 @@
 extends Node
 
+# Constants
+#   DEFAULT_PORT: The port GodotShip will listen on/connect to by default
 const DEFAULT_PORT = 35879
+#   LOCALHOST: loopback address
 const LOCALHOST = "127.0.0.1"
 
+# Enums, used for mail types
+#   Mail types:
+#     1: REQUEST: Message is a request for information
+#     0: REPLY: Message is a reply
+enum {REPLY, REQUEST}
+
+# Signals
+#   incoming(mail): Sent when there's an incoming message
 signal incoming
+#   peers_updated(): Sent when the peer list is updated
+signal peers_updated
+#
 
-# Let's pretend this is actually passed from send to receive
-class Mail:
-	# Sender address
-	var from:int
-	var message
-	var type:int
-	enum {FROM, MESSAGE, TYPE}
-	enum {REPLY, REQUEST}
-
-# Store peer info in a dictionary, by player ID
-var peer_info = {}
-# Store this player's hostname
-var local_info = {"hostname": ""}
-
-var connected = false
-var hosting = false
-
-# FIFO queue of Mails
+# Variables
+#   inbox: Array: Message history
 var inbox = []
+#   connected: Boolean: True when in the Connected state
+var connected = false
+#   hosting: Boolean:   True when in the Hosting state
+var hosting = false
+#   peer_info: Dictionary: Store peer info in a dictionary, by player ID
+var peer_info = {}
+#   local_info: Dictionary: Store this player's info
+var local_info = {"name": ""}
 
 # Network -- handles server and client setup, and facilitates communication between the two
-#   receive: Called when an incoming message is received
-#     item: The message received from the sender
+#   receive: Receive a message (called by sender's `send` function)
+#     item: The message received from the sender (implicitly JSON-decoded by JSONRPC)
 sync func receive(mail):
 	# Get the sender's ID and force letter to be properly addressed
 	mail[0] = get_tree().get_rpc_sender_id()
@@ -36,7 +42,7 @@ sync func receive(mail):
 	# Sent it off to anything that expects mail
 	emit_signal("incoming", mail)
 
-#   send: Called when sending a message
+#   send: Send a message
 #     id: Peer ID of the recipient
 #     mail: Variant of a json-encodable type (non-Object) to send
 func send(id, mail):
@@ -49,12 +55,17 @@ func send(id, mail):
 func start_host(port = DEFAULT_PORT, max_players = 2):
 	get_hostname()
 	peer_info[1] = local_info
+	# Notify that peer list has updated
+	emit_signal("peers_updated")
+	# Create a new NetworkedMultiplayerENet (handles multiplayer communication through ENet)
 	var peer = NetworkedMultiplayerENet.new()
+	# Create a server
 	peer.create_server(port, max_players)
+	# Add the server to the scene tree
 	get_tree().network_peer = peer
+	# Update state
 	connected = true
 	hosting = true
-	return
 
 #   connect_host: Connect to a host
 func connect_host(ip = LOCALHOST, port = DEFAULT_PORT):
@@ -65,6 +76,8 @@ func connect_host(ip = LOCALHOST, port = DEFAULT_PORT):
 
 #   disconnect_host
 func disconnect_host():
+	# Send intent to disconnect
+	rpc("unregister_peer", get_network_id())
 	# Set state to disconnected
 	connected = false
 	hosting = false
@@ -75,19 +88,33 @@ func disconnect_host():
 	get_tree().network_peer = null
 	# Clear peer info
 	peer_info = {}
+	# Notify that peer list has updated
+	emit_signal("peers_updated")
 
+#   change_name: Change the local name, and re-register with all peers (including self)
+func change_name(name):
+	# Change name locally
+	local_info["name"] = name
+	# Send updated info info to all peers
+	rpc("register_peer", local_info)
+	pass
+
+#   get_hostname: Asks the host machine to provide its hostname,
+#     and if the peer name isn't set, set it to the hostname
 func get_hostname():
-	if local_info["hostname"] == "":
-		var hostname = []
-		var _ret = OS.execute("hostname", [], true, hostname)
-		local_info["hostname"] = hostname[0].split("\n")[0]
-	return local_info["hostname"]
+	var hostname = []
+	# Execute the `hostname` command
+	var _ret = OS.execute("hostname", [], true, hostname)
+	# If there's no name set, set it to the hostname
+	if local_info["name"] == "":
+		local_info["name"] = hostname[0].split("\n")[0]
+	return hostname[0].split("\n")[0]
 
 func get_network_id():
 	return get_tree().get_network_unique_id()
 
 func get_ip():
-	print(IP.resolve_hostname(get_hostname(), IP.TYPE_IPV4))
+	return IP.resolve_hostname(get_hostname(), IP.TYPE_IPV4)
 	pass
 
 func _ready():
@@ -100,11 +127,13 @@ func _ready():
 
 
 func _peer_connected(id):
+	# Send peer info to remote peer
 	rpc_id(id, "register_peer", local_info)
 	pass
 
 func _peer_disconnected(id):
-	peer_info.erase(id)
+	# Unregister the peer locally
+	unregister_peer(id)
 	pass
 
 
@@ -123,7 +152,11 @@ func _connection_fail():
 	# Ensure Net state is clear
 	disconnect_host()
 
-remote func register_peer(info):
+sync func register_peer(info):
 	# Save player information under the sender id's peer info
 	peer_info[get_tree().get_rpc_sender_id()] = info
-	pass
+	emit_signal("peers_updated")
+
+sync func unregister_peer(id):
+	peer_info.erase(id)
+	emit_signal("peers_updated")

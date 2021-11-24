@@ -3,6 +3,7 @@ extends Control
 # Scenes
 onready var Title_Screen = preload("res://scenes/Title Screen.tscn")
 onready var Game         = preload("res://scenes/Game/Game.tscn"   )
+onready var Lobby        = preload("res://scenes/Lobby.tscn"       )
 onready var Options      = preload("res://scenes/Options.tscn"     )
 onready var Credits      = preload("res://scenes/Credits.tscn"     )
 onready var Debug_Menu   = preload("res://scenes/Debug Menu.tscn"  )
@@ -64,7 +65,7 @@ func _on_scene_start(scene):
 			add_child (instance)
 			return true
 		"Multiplayer": 
-			instance = Game.instance()
+			instance = Lobby.instance()
 			add_child (instance)
 			return true
 		"Options": 
