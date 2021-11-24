@@ -5,7 +5,7 @@ var Ship = preload("res://scenes/Game/Ship.tscn")
 
 # Consts and enums
 const NO_SHIP = -1
-enum  {MISS = -1, READY = 0, HIT = 1, SUNK = 2}
+enum  {MISS = -1, READY = 0, HIT = 1, SUNK = 2, LOST = 3}
 
 var bottom_board:Array # Player board
 var top_board:Array    # Opponent board
@@ -49,6 +49,10 @@ func hit(pos):
 	if res == SUNK:
 		# remove it from the count
 		ship_count -= 1
+	# If no ships left,
+	if ship_count == 0:
+		# Game has been lost
+		res = LOST;
 	return res
 
 # fire: Store the results of firing on an opponent
