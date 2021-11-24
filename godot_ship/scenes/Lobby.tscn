@@ -108,24 +108,22 @@ margin_right = 123.0
 margin_bottom = 104.0
 text = "Change Name"
 
-[node name="Exit Lobby" type="Button" parent="Lobby Options"]
+[node name="Exit Lobby Button" type="Button" parent="Lobby Options"]
 margin_top = 108.0
 margin_right = 123.0
 margin_bottom = 128.0
 text = "Exit Lobby"
 
-[node name="Change Name" type="AcceptDialog" parent="."]
-margin_left = 402.272
-margin_top = 809.953
-margin_right = 642.272
-margin_bottom = 883.953
-rect_min_size = Vector2( 240, 74 )
+[node name="Change Name" type="WindowDialog" parent="."]
+visible = true
+margin_left = 201.002
+margin_top = 516.255
+margin_right = 441.002
+margin_bottom = 562.255
+rect_min_size = Vector2( 240, 46 )
 window_title = "Change Name"
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
-[node name="Name Entry" type="TextEdit" parent="Change Name"]
+[node name="Name Entry" type="LineEdit" parent="Change Name"]
 anchor_left = 0.5
 anchor_right = 0.5
 margin_left = -112.0
@@ -133,23 +131,25 @@ margin_top = 8.0
 margin_right = 112.0
 margin_bottom = 38.0
 grow_horizontal = 2
+rect_min_size = Vector2( 224, 30 )
 text = "127.0.0.1"
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Connect to Game" type="AcceptDialog" parent="."]
+[node name="Connect to Game" type="WindowDialog" parent="."]
+visible = true
 margin_left = 201.136
 margin_top = 404.977
 margin_right = 441.136
-margin_bottom = 478.977
-rect_min_size = Vector2( 240, 74 )
+margin_bottom = 450.977
+rect_min_size = Vector2( 240, 46 )
 window_title = "Connect to Game"
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="IP and Port Entry" type="TextEdit" parent="Connect to Game"]
+[node name="IP and Port Entry" type="LineEdit" parent="Connect to Game"]
 anchor_left = 0.5
 anchor_right = 0.5
 margin_left = -112.0
@@ -157,15 +157,13 @@ margin_top = 8.0
 margin_right = 112.0
 margin_bottom = 38.0
 grow_horizontal = 2
+rect_min_size = Vector2( 224, 30 )
 text = "127.0.0.1"
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [connection signal="pressed" from="Lobby Options/Host or Connect/Host Button" to="." method="_on_Host_Button_pressed"]
 [connection signal="pressed" from="Lobby Options/Host or Connect/Connect Button" to="." method="_on_Connect_Button_pressed"]
 [connection signal="pressed" from="Lobby Options/Connected Options/Disconnect Button" to="." method="_on_Disconnect_Button_pressed"]
 [connection signal="pressed" from="Lobby Options/Change Name Button" to="." method="_on_Change_Name_Button_pressed"]
-[connection signal="pressed" from="Lobby Options/Exit Lobby" to="." method="_on_Exit_Lobby_pressed"]
-[connection signal="confirmed" from="Change Name" to="." method="_on_Change_Name_confirmed"]
-[connection signal="confirmed" from="Connect to Game" to="." method="_on_Connect_to_Game_confirmed"]
+[connection signal="pressed" from="Lobby Options/Exit Lobby Button" to="." method="_on_Exit_Lobby_pressed"]
+[connection signal="text_entered" from="Change Name/Name Entry" to="." method="_on_Name_Entry_text_entered"]
+[connection signal="text_entered" from="Connect to Game/IP and Port Entry" to="." method="_on_IP_and_Port_Entry_text_entered"]
