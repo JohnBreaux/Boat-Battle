@@ -60,7 +60,7 @@ func _on_scene_start(scene):
 	var instance
 	#print ("_on_scene_start(",scene,")")
 	match scene:
-		"Singleplayer": 
+		"Gameplay": 
 			instance = Game.instance()
 			add_child (instance)
 			return true

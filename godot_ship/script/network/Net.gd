@@ -8,9 +8,11 @@ const LOCALHOST = "127.0.0.1"
 
 # Enums, used for mail types
 #   Mail types:
-#     1: REQUEST: Message is a request for information
-#     0: REPLY: Message is a reply
-enum {REPLY, REQUEST, READY, ACK}
+#     0: REQUEST: Message is a request for information
+#     1: REPLY: Message is a reply
+#     2: READY: Message is "ready"
+#     3: ACK:   Message is an acknowledgement
+enum {REQUEST, REPLY, READY, ACK}
 
 # Signals
 #   incoming(mail): Sent when there's an incoming message
@@ -36,6 +38,10 @@ var local_info = {"name": ""}
 #     mail: The message received from the sender (implicitly JSON-decoded by JSONRPC)
 #     mail_type: Type of mail (see "Mail Types" enum above)
 remote func receive(mail):
+	print_debug("recv: %s" % mail)
+	# Unpack the mail
+	# Uses json parser of unknown stability, how fun
+	mail = parse_json(mail)
 	# Get the sender's ID and force letter to be properly addressed
 	mail[0] = get_tree().get_rpc_sender_id()
 	# Add the mail to the inbox (so it can be read back later if necessary
@@ -48,6 +54,7 @@ remote func receive(mail):
 #     mail: Variant of a json-encodable type (non-Object) to send
 #     mail_type: Type of mail (see "Mail Types" enum above)
 func send(id, mail, mail_type = REPLY):
+	print_debug("send: %d, %s, %d" % [id, mail, mail_type])
 	# Make the recipient receive the mail
 	rpc_id(id, "receive", to_json([-1, mail, mail_type]))
 
@@ -81,7 +88,7 @@ func accept_guests(accept:bool):
 func connect_host(ip = LOCALHOST, port = DEFAULT_PORT):
 	get_hostname()
 	var peer = NetworkedMultiplayerENet.new()
-	var ret = peer.create_client(ip, port)
+	var ret = peer.create_client(ip, int(port))
 	get_tree().network_peer = peer
 	return ret
 
@@ -106,9 +113,10 @@ func disconnect_host():
 func change_name(name):
 	# Change name locally
 	local_info["name"] = name
-	# Send updated info info to all peers
-	rpc("register_peer", local_info)
-	pass
+	# If connected, update peers
+	if connected:
+		# Send updated info info to all peers
+		rpc("register_peer", local_info)
 
 # Helper Functions
 #   get_hostname: Asks the host machine to provide its hostname,
@@ -130,7 +138,7 @@ func get_ip():
 	pass
 
 func _ready():
-	var _trash 
+	var _trash
 	_trash = get_tree().connect("network_peer_connected",    self, "_peer_connected"   )
 	_trash = get_tree().connect("network_peer_disconnected", self, "_peer_disconnected")
 	_trash = get_tree().connect("connected_to_server",       self, "_host_connected"   )

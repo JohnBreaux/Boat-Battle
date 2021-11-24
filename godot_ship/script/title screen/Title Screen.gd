@@ -12,7 +12,7 @@ func _ready():
 
 func _on_Singleplayer_pressed():
 	AudioBus.emit_signal("button_clicked")
-	MessageBus.emit_signal("change_scene", "Singleplayer")
+	MessageBus.emit_signal("change_scene", "Gameplay")
 	queue_free()
 
 func _on_Multiplayer_pressed():

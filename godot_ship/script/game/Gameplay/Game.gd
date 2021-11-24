@@ -1,11 +1,18 @@
 extends Control
 
 # warning-ignore-all:unused_signal
+# warning-ignore-all:return_value_discarded
+
+enum  {MISS = -1, READY = 0, HIT = 1, SUNK = 2, LOST = 3}
 
 # Signals
 signal fire # fire(position)
-signal hit  # hit (state: see Miss/Ready/Hit/Sunk enum in Board.gd)
-signal win  # win (): sent when opponent player lost
+signal hit  # hit (state): see Miss/Ready/Hit/Sunk enum in Board.gd)
+signal miss
+signal loss
+signal forfeit
+
+signal game_ready
 
 # Path to Player class, for instantiating new Players in code
 var Player = preload("res://scenes/Game/Player.tscn")
@@ -16,10 +23,6 @@ var Victory = preload("res://scenes/Game/Victory.tscn")
 # Array of instances of the Player class; stores the Players
 var player
 var players_ready = []
-# turn counter
-var turn = 0
-# winner
-var winner = 0
 
 # Every game is a multiplayer game, even the ones that aren't.
 # We're taking the Minecraft approach, baby
@@ -28,128 +31,158 @@ var network_id
 # Called when the node enters the scene tree for the first time.
 func _ready():
 
-	get_node("ConfirmationDialog").get_ok().text = "Yes"
-	get_node("ConfirmationDialog").get_cancel().text = "No"
-	get_node("ConfirmationDialog").get_ok().rect_min_size.x = 100
-	get_node("ConfirmationDialog").get_cancel().rect_min_size.x = 100
-	if multiplayer:
-		# TODO: Spawn a lobby where people can either connect to a peer or create a server
+	get_node("Forfeit Confirmation").get_ok().text = "Yes"
+	get_node("Forfeit Confirmation").get_cancel().text = "No"
+	get_node("Forfeit Confirmation").get_ok().rect_min_size.x = 100
+	get_node("Forfeit Confirmation").get_cancel().rect_min_size.x = 100
+
+	if Net.connected:
+		Net.connect("disconnected", self, "connection_error")
+		Net.connect("incoming",     self, "_on_Net_incoming")
 		pass
 	game_setup()
 
 # Function used to keep track of which players are ready
-# TODO: Change this to keep track of ready states only
-func player_ready():
-	players_ready.append(Net.get_network_id())
-	pass
+func player_ready(sender):
+	print("player_ready(%s), %d" % [sender, players_ready.size()])
+	players_ready.append(sender)
+	if (players_ready.size() >= Net.peer_info.size()):
+		emit_signal("game_ready")
 
 # Member functions:
-#   game_start: starts the game
+#   game_setup: starts the game
 sync func game_setup():
 	# If there's no server connected, create one
 	if not Net.connected:
 		# TODO: Create a fake peer who we can automate, for single-player mode
 		Net.start_host()
 	network_id = Net.get_network_id()
+	player = Player.instance()
+	player.connect("player_ready", self, "_on_player_ready")
+	add_child(player)
+	player.set_up_begin()
+	yield(self, "game_ready")
+	if Net.hosting:
+		state_fire()
+
+#   state_fire: The firing state. Displays fire menu, then notifies opponent.
+remote func state_fire():
+	var pos = player.turn_start()
+	if pos is GDScriptFunctionState:
+		pos = yield(pos, "completed")
+	rpc("state_check", pos)
+
+#   state_check: The checking state. Branches out to the other states.
+#     pos: Position which the opponent is trying to fire upon
+remote func state_check(pos):
+	var res = player.hit(pos)
+	# Tell the opponent
+	Net.send(0, ["hit", res], Net.REPLY)
+	rpc("play_hit_sound", res)
+	match res:
+		LOST:
+			# the other player wins
+			rpc("state_win", player.board.ship_data)
+			victory_screen(null, false)
+		SUNK, HIT:
+			# Hit
+			rpc("state_fire")
+		MISS:
+			# Our turn to fire
+			state_fire()
 	pass
 
-#   game_start: Runs on host. Controls the game.
-func game_start():
-	var state = "P1_fire"
-	# Make sure we're the server
-	while true:
-		match state:
-			"P1_fire":
-				# Tell local player to fire
-
-				# Wait for result
-
-				# Send fire REQUEST to P2
-				pass
-			"P2_check":
-				# Wait for hit
-				var ret = yield(self, "hit")
-				# Record the hit
-
-				#
-				pass
-			"P2_fire":
-				pass
-			"P1_check":
-				# Check if
-				pass
-			"P1_win":
-				pass
-			"P2_win":
-				pass
+#   state_win: The winning state. If you reach here, someone's won.
+#     ships: The opponent's ship data, so that their board can be shown
+remote func state_win(ships):
+	victory_screen(ships)
 	pass
 
-func fire_on(id, pos:Vector2):
-	# REQUEST fire on opponent
-	Net.send(id, ["fire", pos], Net.REQUEST)
-	# Wait for REPLY
+#   play_hit_sound: Play a hit sound depending on the severity of the hit
+#     value: Lost/Sunk/Hit/Miss
+sync func play_hit_sound(value):
+	match value:
+		LOST, SUNK:
+			AudioBus.emit_signal("ship_sunk")
+		HIT:
+			AudioBus.emit_signal("ship_hit")
+		MISS:
+			AudioBus.emit_signal("ship_missed")
 
-func return_hit(id, ship_status):
+#   hit: Update the local player's board when the opponent fires
+#     pos: Opponent's target
+func hit(pos):
+	pos = Vector2(pos[0], pos[1])
+	var res = player.hit(pos)
+	return res
 
-	Net.send(id, ["hit", ship_status], Net.REPLY)
+#   mark: Update the local player's hit/miss board when opponent replies
+func mark(res):
+	return player.mark(res)
 
-func _on_win():
-	pass
-
+#   _on_Net_incoming: Handle mail.
 func _on_Net_incoming(mail):
+	print ("mail: ", mail, mail.size())
 	if mail.size() == 3:
-		var sender   = mail[0]
+		print ("mail: ", mail, mail.size())
+		var sender   = int(mail[0])
 		var message  = mail[1]
-		var mailtype = mail[2]
+		var mailtype = int(mail[2])
+		printt(sender, message, mailtype)
 		match mailtype:
-			# if message is a REQUEST (to perform an action)
-			Net.REQUEST:
-				match message[0]:
-					# Opponent asks for player.fire()
-					"fire":
-						emit_signal("fire", message[1])
-					# Opponent asks for hit(pos)
-					"hit":
-						pass
-					_:
-						pass
 			Net.REPLY:
+				print ("got REPLY")
 					# message is a REPLY (return value)
 				match message[0]:
+					# on "fire": fire(result)
 					"fire":
-						emit_signal("hit", message[1])
-					# Return value of
+						hit(message[1])
+					# on "hit": mark(state)
 					"hit":
+						mark(message[1])
+					"forfeit":
 						pass
-				pass
 			Net.READY:
+				print ("got READY")
 				# Add player to the ready array
-				players_ready.append(sender)
-				pass
+				player_ready(sender)
+			_:
+				print ("got ", mailtype)
 
 #   _on_player_ready: Player Ready signal handler
 func _on_player_ready():
 	print ("_on_player_ready")
-	Net.send(1, [], Net.READY)
+	Net.send(0, [], Net.READY)
+	player_ready(Net.get_network_id())
 
 #   victory_screen: display the victory screen
-func victory_screen():
-	# TODO: Create the victory screen, fill it with knowledge
-	pass
-
-#   display_turn: display which turn it is on the screen
-func display_turn():
-	# TODO: Update the turn display, if there is one?
-	pass
+func victory_screen(ships, winner = true):
+	if winner:
+		# Hide the buttons
+		get_node("Bittons").hide()
+		# Create a new Victory screen
+		var victory = Victory.instance()
+		# Give it the ships received from the opponent
+		victory.reveal_ships(ships)
+		# Print a nice message to stdout
+		print("You won!")
+		# Add victory to the scene tree
+		add_child(victory)
+	else:
+		end()
 
 #   _on_Forfeit_pressed: Handle forfeit button press
 func _on_Forfeit_pressed():
 	AudioBus.emit_signal("button_clicked")
-	get_node("ConfirmationDialog").popup()
+	get_node("Forfeit Confirmation").popup_centered()
 
 #   end: end the Game
-func end():
+sync func end():
 	queue_free()
+
+
+func connection_error():
+	get_node("Connection Error").popup_centered()
 
 #   _on_Button_button_down: Handle win button press
 #   TODO: This isn't a thing any more
@@ -159,6 +192,13 @@ func _on_Button_button_down():
 	add_child(victory)
 	victory.connect("exit_main", self, "end")
 
-func _on_ConfirmationDialog_confirmed():
+func _on_Forfeit_Confirmation_confirmed():
+	if Net.connected:
+		# Send forfeit request to all users
+		rpc("end")
 	end()
+
+func _on_Connection_Error_confirmed():
+	# End the game
+	queue_free()
 

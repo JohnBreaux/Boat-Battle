@@ -93,9 +93,19 @@ text = "Connect to Game"
 
 [node name="Connected Options" type="VBoxContainer" parent="Lobby Options"]
 visible = false
-margin_top = 84.0
+margin_top = 36.0
 margin_right = 123.0
-margin_bottom = 104.0
+margin_bottom = 56.0
+
+[node name="Host Options" type="VBoxContainer" parent="Lobby Options/Connected Options"]
+visible = false
+margin_right = 123.0
+margin_bottom = 20.0
+
+[node name="Start Game" type="Button" parent="Lobby Options/Connected Options/Host Options"]
+margin_right = 123.0
+margin_bottom = 20.0
+text = "Start Game"
 
 [node name="Disconnect Button" type="Button" parent="Lobby Options/Connected Options"]
 margin_right = 123.0
@@ -162,6 +172,7 @@ text = "127.0.0.1"
 
 [connection signal="pressed" from="Lobby Options/Host or Connect/Host Button" to="." method="_on_Host_Button_pressed"]
 [connection signal="pressed" from="Lobby Options/Host or Connect/Connect Button" to="." method="_on_Connect_Button_pressed"]
+[connection signal="pressed" from="Lobby Options/Connected Options/Host Options/Start Game" to="." method="_on_Start_Game_pressed"]
 [connection signal="pressed" from="Lobby Options/Connected Options/Disconnect Button" to="." method="_on_Disconnect_Button_pressed"]
 [connection signal="pressed" from="Lobby Options/Change Name Button" to="." method="_on_Change_Name_Button_pressed"]
 [connection signal="pressed" from="Lobby Options/Exit Lobby Button" to="." method="_on_Exit_Lobby_pressed"]

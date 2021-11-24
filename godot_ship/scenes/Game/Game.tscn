@@ -29,7 +29,7 @@ margin_right = 88.0
 margin_bottom = 20.0
 text = "Forfeit"
 
-[node name="ConfirmationDialog" type="ConfirmationDialog" parent="."]
+[node name="Forfeit Confirmation" type="ConfirmationDialog" parent="."]
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -54,6 +54,13 @@ margin_right = 43.4668
 margin_bottom = 26.1478
 text = "Win"
 
+[node name="Connection Error" type="AcceptDialog" parent="."]
+margin_right = 230.0
+margin_bottom = 58.0
+window_title = "Connection Error"
+dialog_text = "Host disconnected unexpectedly."
+
 [connection signal="pressed" from="Buttons/Forfeit" to="." method="_on_Forfeit_pressed"]
-[connection signal="confirmed" from="ConfirmationDialog" to="." method="_on_ConfirmationDialog_confirmed"]
+[connection signal="confirmed" from="Forfeit Confirmation" to="." method="_on_Forfeit_Confirmation_confirmed"]
 [connection signal="button_down" from="Button" to="." method="_on_Button_button_down"]
+[connection signal="confirmed" from="Connection Error" to="." method="_on_Connection_Error_confirmed"]

@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=2]
 
 [ext_resource path="res://script/game/Gameplay/Board.gd" type="Script" id=1]
-[ext_resource path="res://assets/game/board_dark.png" type="Texture" id=2]
+[ext_resource path="res://assets/game/board_blue.png" type="Texture" id=2]
 
 [node name="Board" type="Node2D"]
 position = Vector2( 36, 36 )

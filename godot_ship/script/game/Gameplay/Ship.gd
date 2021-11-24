@@ -59,6 +59,8 @@ func hit(pos):
 		# Sink the ship.
 		set_sunk()
 		res = SUNK
+	# Update graphics
+	update()
 	return res
 
 # update: (re)calculates extents and textures

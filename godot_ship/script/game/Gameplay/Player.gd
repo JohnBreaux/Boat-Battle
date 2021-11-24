@@ -12,15 +12,13 @@ var Setup = preload("res://scenes/Game/Setup.tscn")
 var Fire  = preload("res://scenes/Game/Fire.tscn")
 
 # Members
-var pid   # Player ID
 var board # Board
-
-var fire_at_position # Position to fire at
+var fire_pos = Vector2(-1,-1)
+var target = Vector2(-1,-1)
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	# Set the player ID according to which network peer ID we are
-	pid = int(name)
+	pass
 
 func set_up_begin():
 	var setup = Setup.instance()
@@ -32,22 +30,23 @@ func set_up_begin():
 #   hit: Called when opponent fires on us.
 #     Update internal state, and return hit/miss/sunk
 func hit(pos):
+	target = pos
 	var res = board.hit(pos)
 	return res
 
 #   mark: Called when the opponent returns hit/miss/sunk
 #     Update internal state, return ack/nak
-func mark(pos, value):
+func mark(value):
 	# Mark the position on the top board
-	board.fire(pos, value)
+	return board.fire(fire_pos, value)
 
 #   place_ship: called when ships are placed.
 #     forwards Ship locations to the Board, so that it may construct a ship
 #     ship: a list of ship properties {position, orientation, size, variant}
 func place_ship(pos, size, orientation, variant):
-	board.place_ship(pos, size, orientation, variant)
+	return board.place_ship(pos, size, orientation, variant)
 
-#   setup: set up the board given the placed ship locations
+#   set_up: set up the board given the placed ship locations
 #     Places each ship onto the board
 #     ships: a list of lists of ship properties [[position, orientation, size, variant], ...]
 func set_up(ships):
@@ -62,17 +61,22 @@ func set_up(ships):
 #     Initiates the player's turn, and blocks until the player selects a location to fire upon
 #     returns: fire = [player id, target coordinates]
 func turn_start():
-	print("turn_start")
 	var fire = Fire.instance()
-	
+	fire.hits = board.top_board
 	add_child(fire)
-	var pos = yield(fire, "fire_at")
-	return pos
+	fire_pos = yield(fire, "fire_at")
+	fire.queue_free()
+	return fire_pos
+
 
 #   getBoard: returns the player's board
 #     returns: board
-func getBoard():
-	return board
+func board_query(boardname):
+	match boardname:
+		"top":
+			return board.query_top  (fire_pos)
+		"bottom":
+			return board.quert_bottom (target)
 
 #   forfeit: ends game for player
 #     Sinks all ships
@@ -86,7 +90,3 @@ func forfeit():
 #   getShipCount: get the number of ships the player has left alive
 func getShipCount():
 	return board.get_ship_count()
-
-
-func _on_fire_at(pos):
-	fire_at_position = pos
