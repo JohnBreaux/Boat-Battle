@@ -2,24 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-<<<<<<< HEAD:godot_ship/assets/backgrounds/Background_Dark.png.import
-path="res://.import/Background_Dark.png-f04f9416ce96aca35dfd0f16063b0d5b.stex"
-=======
 path="res://.import/HitMissAtlas.png-47e352b9aa0deb2bd08f554355b13c14.stex"
->>>>>>> game-logic:godot_ship/assets/game/HitMissAtlas.png.import
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-<<<<<<< HEAD:godot_ship/assets/backgrounds/Background_Dark.png.import
-source_file="res://assets/backgrounds/Background_Dark.png"
-dest_files=[ "res://.import/Background_Dark.png-f04f9416ce96aca35dfd0f16063b0d5b.stex" ]
-=======
 source_file="res://assets/game/HitMissAtlas.png"
 dest_files=[ "res://.import/HitMissAtlas.png-47e352b9aa0deb2bd08f554355b13c14.stex" ]
->>>>>>> game-logic:godot_ship/assets/game/HitMissAtlas.png.import
 
 [params]
 
@@ -29,7 +20,7 @@ compress/hdr_mode=0
 compress/bptc_ldr=0
 compress/normal_map=0
 flags/repeat=0
-flags/filter=true
+flags/filter=false
 flags/mipmaps=false
 flags/anisotropic=false
 flags/srgb=2

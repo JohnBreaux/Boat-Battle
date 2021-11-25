@@ -2,24 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-<<<<<<< HEAD:godot_ship/assets/game/3ShipA.png.import
-path="res://.import/3ShipA.png-1fe0003af4adcd83b8c94b2b9d6e5b6d.stex"
-=======
 path="res://.import/Icon16.png-e916d7bb27530c71f994d2d2cacbe08b.stex"
->>>>>>> game-logic:godot_ship/assets/icons/Icon16.png.import
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-<<<<<<< HEAD:godot_ship/assets/game/3ShipA.png.import
-source_file="res://assets/game/3ShipA.png"
-dest_files=[ "res://.import/3ShipA.png-1fe0003af4adcd83b8c94b2b9d6e5b6d.stex" ]
-=======
 source_file="res://assets/icons/Icon16.png"
 dest_files=[ "res://.import/Icon16.png-e916d7bb27530c71f994d2d2cacbe08b.stex" ]
->>>>>>> game-logic:godot_ship/assets/icons/Icon16.png.import
 
 [params]
 
@@ -39,5 +30,5 @@ process/HDR_as_SRGB=false
 process/invert_color=false
 stream=false
 size_limit=0
-detect_3d=false
+detect_3d=true
 svg/scale=1.0
