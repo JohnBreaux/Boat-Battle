@@ -159,7 +159,7 @@ func _on_player_ready():
 func victory_screen(ships, winner = true):
 	if winner:
 		# Hide the buttons
-		get_node("Bittons").hide()
+		get_node("Buttons").hide()
 		# Create a new Victory screen
 		var victory = Victory.instance()
 		# Give it the ships received from the opponent
