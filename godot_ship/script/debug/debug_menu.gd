@@ -11,6 +11,9 @@ var menu_velocity = 4
 var history : Array = []
 var history_pos = 0
 
+# Controls whether to print to the screen
+var echo = true
+
 onready var expression = Expression.new()
 
 # helptext: args list and help blurb accessed by function name
@@ -38,6 +41,8 @@ var helptext = {
 	"command_getprop":       [" prop",             "Get the value of property prop\n"                         ],
 	"command_setprop":       [" prop value",       "Set the property prop to value.\n"                        ],
 
+	"command_script":        [" path",             "Load and execute a script at user://scripts/<name>\n"     ],
+	"command_echo":          [" on/off",           "Controls whether lines should be printed to the screen\n" ],
 	"command_restart":       ["",                  "Kill the current scene tree and plant a new Root.\n"      ],
 	"command_exit":          ["",                  "Quits the program.\n"                                     ],
 
@@ -70,10 +75,12 @@ var commands = {
 	["getprop","get", "g"]:         "command_getprop",
 	["setprop","set", "s"]:         "command_setprop",
 
+	["script", "sh"]:               "command_script",
+	["@echo"]:                      "command_echo",
 	["restart", "killall"]:         "command_restart",
 	["exit", "quit"]:               "command_exit",
 
-	[""]:                           "command_empty"
+	["", "#"]:                      "command_empty"
 }
 
 #List of all of Godot's builtin types
@@ -151,22 +158,28 @@ func _input(event):
 		#traverse history down
 		history_move(+1)
 
-# Signal-processing functions:
+# Command-processing functions:
 #   _on_LineEdit_text_entered: process incoming text line
 #     params: line: Line of text entered by user
 #     returns: void
 func _on_LineEdit_text_entered(line):
-	if line != "":
-		history_append(line)
 	emit_signal("clear_in")
 	debug_print_line(line + "\n")
 	var command = line.split(' ', true, 1)
-	var command_func = parse(command[0])
-	if command_func:
-		call(command_func, command)
+	if execute_command(command):
+		history_append(line)
 	else:
 		debug_print_line("dbg: command not found: " + command[0] + "\n")
 	debug_print_line("> ")
+
+#   execute_command: execute a line of text as a command
+#     params: command: partially tokenized PoolStringArray ["command_alias", "parameters ..."]
+#     returns: name of executed function, or null if nothing executed
+func execute_command(command):
+	var command_func = parse(command[0])
+	if command_func:
+		call(command_func, command)
+	return command_func
 
 # History_related helper functions:
 #   history_append: add a line of text to the history
@@ -195,7 +208,8 @@ func history_move(rel_pos):
 #     params: string: Text string to print
 #     returns: void
 func debug_print_line(string):
-	emit_signal("print_text", string.c_unescape())
+	if echo:
+		emit_signal("print_text", string.c_unescape())
 
 #   get_pwn: get the present working node if valid, otherwise cd to root
 func get_pwn():
@@ -280,7 +294,7 @@ func string_to_variant(string, type):
 			res = null
 		TYPE_BOOL:
 			match string.to_lower():
-				"true", "1", "ok":
+				"true", "1", "ok", "on":
 					res = true
 				_:
 					res = false
@@ -369,7 +383,7 @@ func command_restart (_command):
 #   print: prints a message to the in-game debug console
 func command_print(command):
 	if command.size() > 1:
-		debug_print_line(command[1] + "\n")
+		debug_print_line(command[1])
 	else:
 		debug_print_line("\n")
 
@@ -516,6 +530,46 @@ func command_perf(command):
 			debug_print_line(String(stat) + "\n")
 		else:
 			debug_print_line("null\n")
+	else:
+		debug_print_line(get_usage(command[0]))
+
+#   script: run a script from user://scripts/
+func command_script(command):
+	var script = []
+	if (command.size() > 1):
+		var path = "user://scripts/" + command[1]
+		var f = File.new()
+		var err = f.open(path, File.READ)
+		if err == OK:
+			# Read the file
+			while not f.eof_reached():
+				script.push_back(f.get_line())
+			f.close()
+			# Save state and turn off echo
+			var state = {"echo": echo, 
+						 "pwn": present_working_node, 
+						 "history_pos": history_pos,
+						 "history": history,
+						 "expression": expression}
+			echo = false
+			# Execute the script
+			for cmd in script:
+				cmd = cmd.split(' ', true, 1)
+				execute_command(cmd)
+			# Restore state
+			echo = state["echo"]
+			present_working_node = state["pwn"]
+			history_pos = state["history_pos"]
+			history = state["history"]
+			expression = state["expression"]
+		else:
+			debug_print_line("File not found: " + command[1] + "\n")
+	else:
+		debug_print_line(get_usage(command[0]))
+
+func command_echo(command):
+	if command.size() > 1:
+		echo = string_to_variant(command[1], TYPE_BOOL)
 	else:
 		debug_print_line(get_usage(command[0]))
 

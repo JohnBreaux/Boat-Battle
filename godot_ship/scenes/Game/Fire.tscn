@@ -40,7 +40,7 @@ __meta__ = {
 pause_mode = 2
 margin_right = 83.0
 margin_bottom = 58.0
-dialog_text = "You can't fire outside the board"
+dialog_text = "You must select a valid position"
 
 [connection signal="pressed" from="Fire" to="." method="_on_Fire_pressed"]
 [connection signal="confirmed" from="FireDialog" to="." method="_on_FireDialog_confirmed"]

@@ -1,21 +1,28 @@
 extends Control
 
-signal game_ready
+signal board_ready
 
 onready var Ships = ["2Ship", "3ShipA", "3ShipB", "4Ship", "5Ship"]
 
-onready var Victory = preload("res://scenes/Game/Player.tscn")
+var light_theme = load("res://light_theme.tres")
+var dark_theme = load("res://dark_theme.tres")
 
 class ShipData:
 	var Position: Vector2
 	var Length: int
 	var Orientation: bool # (True = vertical) (False = horizontal)
+	var Variant: int = 0
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	# Moves the focus to this menu
 	if find_next_valid_focus(): find_next_valid_focus().grab_focus()
-
+	
+	get_node("PlaceShipDialog").get_ok().rect_min_size.x = 50
+	
+	var _errno = 0;
+	_errno += OptionsController.connect("change_theme", self, "_on_change_theme")
+	_on_change_theme(OptionsController.get_theme())
 
 func _on_Confirm_Placement_pressed():
 	# Make the button noise
@@ -26,25 +33,17 @@ func _on_Confirm_Placement_pressed():
 		# if this is more than zero, the ship is invalid
 		if get_node(ship).validate_placement():
 			valid = false
-	print ("Placement: ", valid)
 	if valid == false:
 		get_node("PlaceShipDialog").popup()
 	else:
 		#Saves the location of ships and length of ship into an array
-		var shipLocation = []
+		var ship_data = []
 		for ship in Ships:
-			var location = ShipData.new()
-			location.Position = get_node(ship).position
-			location.Length = get_node(ship).get("ship_length")
-			location.Orientation = get_node(ship).get("vertical")
-			shipLocation.append(location)
-		
-		#print out the array for testing
-		for x in shipLocation:
-			print("Ship Length: ", x.Length, ", Ship Orientation: ", x.Orientation, ", Ship Position: ", x.Position)
-		
+			ship = get_node(ship)
+			var data = ship.get_shipdata()
+			ship_data.append(data)
 		# Return the shipLocation array to those listening on game_ready
-		emit_signal("game_ready", shipLocation)
+		emit_signal("board_ready", ship_data)
 		queue_free()
 	return valid # Replace with function body.
 
@@ -53,3 +52,9 @@ func _on_Clear_pressed():
 	for ship in Ships:
 		get_node(ship).clear()
 	pass # Replace with function body.
+	
+func _on_change_theme(theme):
+	if theme == "light":
+		self.set_theme(light_theme)
+	elif theme == "dark":
+		self.set_theme(dark_theme)

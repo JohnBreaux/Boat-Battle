@@ -3,12 +3,16 @@ extends Control
 # Scenes
 onready var Title_Screen = preload("res://scenes/Title Screen.tscn")
 onready var Game         = preload("res://scenes/Game/Game.tscn"   )
+onready var Lobby        = preload("res://scenes/Lobby.tscn"       )
 onready var Options      = preload("res://scenes/Options.tscn"     )
+onready var Credits      = preload("res://scenes/Credits.tscn"     )
 onready var Debug_Menu   = preload("res://scenes/Debug Menu.tscn"  )
 
 # Themes
-var lightmode = preload("res://assets/backgrounds/Background_Light.png");
-var darkmode = preload("res://assets/backgrounds/Background_Dark.png");
+var lightmode = preload("res://assets/backgrounds/Background_Light.png")
+var darkmode = preload("res://assets/backgrounds/Background_Dark.png")
+var light_theme = load("res://light_theme.tres")
+var dark_theme = load("res://dark_theme.tres")
 
 #flags
 var power_saving = true
@@ -56,17 +60,20 @@ func _on_scene_start(scene):
 	var instance
 	#print ("_on_scene_start(",scene,")")
 	match scene:
-		"Singleplayer": 
+		"Gameplay": 
 			instance = Game.instance()
 			add_child (instance)
 			return true
 		"Multiplayer": 
-			instance = Game.instance()
-			instance.is_multiplayer = true
+			instance = Lobby.instance()
 			add_child (instance)
 			return true
 		"Options": 
 			instance = Options.instance()
+			add_child (instance)
+			return true
+		"Credits":
+			instance = Credits.instance()
 			add_child (instance)
 			return true
 		"Title": 
@@ -104,5 +111,7 @@ func _on_title_request():
 func _on_change_theme(theme):
 	if theme == "light":
 		get_node("Background").set_texture(lightmode)
+		self.set_theme(light_theme)
 	elif theme == "dark":
 		get_node("Background").set_texture(darkmode)
+		self.set_theme(dark_theme)

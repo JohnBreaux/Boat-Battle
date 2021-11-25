@@ -146,6 +146,12 @@ func ship_stacked(_body):
 func ship_unstacked(_body):
 	collision = false
 
+func get_shipdata():
+	var shipdata = [world_to_board_space(position), ship_length, int(vertical)]
+	var variant = int(name.match("*B"))
+	shipdata.push_back(variant)
+	return shipdata
+
 # Calculate the extents (front to back) of the ship and check whether they're on the board
 # Returns how many squares to move the ship along its orientation axis (positive or negative)
 func check_extents(center, orientation, length):
