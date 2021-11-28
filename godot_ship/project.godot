@@ -10,7 +10,7 @@ config_version=4
 
 [application]
 
-config/name="godot_ship"
+config/name="Boat Battle"
 run/main_scene="res://scenes/Main.tscn"
 boot_splash/image="res://assets/backgrounds/splash_image.png"
 config/icon="res://icon.png"
