@@ -6,17 +6,12 @@ extends Control
 enum  {MISS = -1, READY = 0, HIT = 1, SUNK = 2, LOST = 3}
 
 # Signals
-signal fire # fire(position)
-signal hit  # hit (state): see Miss/Ready/Hit/Sunk enum in Board.gd)
-signal miss
-signal loss
-signal forfeit
-
+#   Sent when game is ready
 signal game_ready
 
 # Path to Player class, for instantiating new Players in code
 var Player = preload("res://scenes/Game/Player.tscn")
-
+# Path to Victory class, which handles the victory screen
 var Victory = preload("res://scenes/Game/Victory.tscn")
 
 
@@ -44,8 +39,8 @@ func _ready():
 
 # Function used to keep track of which players are ready
 func player_ready(sender):
-	print("player_ready(%s), %d" % [sender, players_ready.size()])
 	players_ready.append(sender)
+	print_debug("%s ready (%d/%d)" % [sender, players_ready.size(), Net.peer_info.size()])
 	if (players_ready.size() >= Net.peer_info.size()):
 		emit_signal("game_ready")
 
@@ -100,7 +95,7 @@ remote func state_win(ships):
 
 #   play_hit_sound: Play a hit sound depending on the severity of the hit
 #     value: Lost/Sunk/Hit/Miss
-sync func play_hit_sound(value):
+remote func play_hit_sound(value):
 	match value:
 		LOST, SUNK:
 			AudioBus.emit_signal("ship_sunk")
@@ -122,16 +117,13 @@ func mark(res):
 
 #   _on_Net_incoming: Handle mail.
 func _on_Net_incoming(mail):
-	print ("mail: ", mail, mail.size())
 	if mail.size() == 3:
-		print ("mail: ", mail, mail.size())
 		var sender   = int(mail[0])
 		var message  = mail[1]
 		var mailtype = int(mail[2])
-		printt(sender, message, mailtype)
 		match mailtype:
 			Net.REPLY:
-				print ("got REPLY")
+				print_debug ("got REPLY")
 					# message is a REPLY (return value)
 				match message[0]:
 					# on "fire": fire(result)
@@ -143,15 +135,15 @@ func _on_Net_incoming(mail):
 					"forfeit":
 						pass
 			Net.READY:
-				print ("got READY")
+				print_debug ("got READY")
 				# Add player to the ready array
 				player_ready(sender)
 			_:
-				print ("got ", mailtype)
+				# Unhandled mail type
+				print_debug ("got %d?" % mailtype)
 
 #   _on_player_ready: Player Ready signal handler
 func _on_player_ready():
-	print ("_on_player_ready")
 	Net.send(0, [], Net.READY)
 	player_ready(Net.get_network_id())
 
@@ -164,8 +156,6 @@ func victory_screen(ships, winner = true):
 		var victory = Victory.instance()
 		# Give it the ships received from the opponent
 		victory.reveal_ships(ships)
-		# Print a nice message to stdout
-		print("You won!")
 		# Add victory to the scene tree
 		add_child(victory)
 	else:

@@ -9,7 +9,6 @@ var hits
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	print("Fire: _ready()")
 	for x in 10:
 		for y in 10:
 			texture(Vector2(x,y))

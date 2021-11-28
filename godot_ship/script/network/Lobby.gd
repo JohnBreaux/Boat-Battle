@@ -17,7 +17,7 @@ func _on_peers_updated():
 	pass
 
 func set_IP_Address_text(show):
-	# Print the IP address and port
+	# Show the IP address (or nothing)
 	if show:
 #		ip_address.text = "IP: %sPort:%s" % [Net.get_ip(), Net.DEFAULT_PORT]
 		ip_address.text = "IP: %s" % Net.get_ip()

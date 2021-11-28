@@ -10,9 +10,9 @@ onready var Debug_Menu   = preload("res://scenes/Debug Menu.tscn"  )
 
 # Themes
 var lightmode = preload("res://assets/backgrounds/Background_Light.png")
-var darkmode = preload("res://assets/backgrounds/Background_Dark.png")
+var darkmode  = preload("res://assets/backgrounds/Background_Dark.png")
 var light_theme = load("res://light_theme.tres")
-var dark_theme = load("res://dark_theme.tres")
+var dark_theme  = load("res://dark_theme.tres")
 
 #flags
 var power_saving = true

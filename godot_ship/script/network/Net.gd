@@ -38,12 +38,13 @@ var local_info = {"name": ""}
 #     mail: The message received from the sender (implicitly JSON-decoded by JSONRPC)
 #     mail_type: Type of mail (see "Mail Types" enum above)
 remote func receive(mail):
-	print_debug("recv: %s" % mail)
 	# Unpack the mail
 	# Uses json parser of unknown stability, how fun
 	mail = parse_json(mail)
 	# Get the sender's ID and force letter to be properly addressed
 	mail[0] = get_tree().get_rpc_sender_id()
+	# print_debug it, for posterity
+	print_debug("recv: ", mail)
 	# Add the mail to the inbox (so it can be read back later if necessary
 	inbox.append(mail)
 	# Sent it off to anything that expects mail
@@ -54,7 +55,7 @@ remote func receive(mail):
 #     mail: Variant of a json-encodable type (non-Object) to send
 #     mail_type: Type of mail (see "Mail Types" enum above)
 func send(id, mail, mail_type = REPLY):
-	print_debug("send: %d, %s, %d" % [id, mail, mail_type])
+	print_debug("send: [%d, %s, %d]" % [id, mail, mail_type])
 	# Make the recipient receive the mail
 	rpc_id(id, "receive", to_json([-1, mail, mail_type]))
 
