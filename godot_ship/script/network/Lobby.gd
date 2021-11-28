@@ -19,7 +19,8 @@ func _on_peers_updated():
 func set_IP_Address_text(show):
 	# Print the IP address and port
 	if show:
-		ip_address.text = "IP: %s\nPort: %s" % [Net.get_ip(), Net.DEFAULT_PORT]
+#		ip_address.text = "IP: %sPort:%s" % [Net.get_ip(), Net.DEFAULT_PORT]
+		ip_address.text = "IP: %s" % Net.get_ip()
 	else:
 		ip_address.text = ""
 
@@ -30,13 +31,13 @@ func _ready():
 	_on_peers_updated()
 	pass
 
-func show_Connected_Options(show, host = false):
+func show_Connected_Options():
 	# [Hide]/Show the host options
-	get_node("Lobby Options/Connected Options/Host Options").visible = host
+	get_node("Lobby Options/Connected Options/Host Options").visible = Net.hosting
 	# [Hide]/Show the host and connect buttons
-	get_node("Lobby Options/Host or Connect").visible = !show
+	get_node("Lobby Options/Host or Connect").visible = !Net.connected
 	# [Show]/Hide the host options
-	get_node("Lobby Options/Connected Options").visible = show
+	get_node("Lobby Options/Connected Options").visible = Net.connected
 
 # Buttons
 #   Host Button: Host a game
@@ -44,12 +45,12 @@ func show_Connected_Options(show, host = false):
 func _on_Host_Button_pressed():
 	# Make noise
 	AudioBus.emit_signal("button_clicked")
-	# Show "Connected Options"
-	show_Connected_Options(true, true)
 	# Show the host IP address
 	set_IP_Address_text(true)
 	# Begin hosting
 	Net.start_host()
+	# Show "Connected Options"
+	show_Connected_Options()
 
 #   Disconnect
 #     Disconnect from (or stop hosting) a game
@@ -59,10 +60,10 @@ func _on_Disconnect_Button_pressed():
 	AudioBus.emit_signal("button_clicked")
 	# Disconnect
 	Net.disconnect_host()
-	# Hide "Connected Options"
-	show_Connected_Options(false)
 	# Hide the host IP address
 	set_IP_Address_text(false)
+	# Hide "Connected Options"
+	show_Connected_Options()
 
 func _on_Start_Game_pressed():
 	# If there are enough players for a game
@@ -72,22 +73,25 @@ func _on_Start_Game_pressed():
 	pass # Replace with function body.
 
 func _on_Net_disconnected():
-	# Hide "Connected Options"
-	show_Connected_Options(false)
 	# Hide the host IP address
 	set_IP_Address_text(false)
+	# Hide "Connected Options"
+	show_Connected_Options()
 
 func _on_Change_Name_Button_pressed():
 	# Make noise
 	AudioBus.emit_signal("button_clicked")
 	# Show the Change Name dialogue
 	get_node("Change Name").popup_centered()
+	get_node("Change Name/Name Entry").grab_focus()
 
 func _on_Connect_Button_pressed():
 	# Make noise
 	AudioBus.emit_signal("button_clicked")
 	# Show the Connect to Game dialogue
-	get_node("Connect to Game").popup_centered()
+	game_popup.popup_centered()
+	game_popup.get_node("IP and Port Entry").grab_focus()
+	game_popup.get_node("IP and Port Entry").caret_position = -1
 
 func _on_Exit_Lobby_pressed():
 	# Make noise
@@ -98,7 +102,6 @@ func _on_Exit_Lobby_pressed():
 	# Close Lobby menu
 	queue_free()
 
-
 func _on_IP_and_Port_Entry_text_entered(text):
 	# Make noise
 	AudioBus.emit_signal("button_clicked")
@@ -107,12 +110,12 @@ func _on_IP_and_Port_Entry_text_entered(text):
 	# If text exists and contains valid IP address
 	if ip_port.size() > 0 and ip_port[0].is_valid_ip_address():
 		# Connect to host
-		var connected = Net.callv("connect_host", ip_port)
+		var connected = Net.connect_host(ip_port[0])
 		if connected == OK:
-			# Show "Connected Options"
-			show_Connected_Options(true)
 			# Hide the popup
 			game_popup.hide()
+			# Show "Connected Options"
+			show_Connected_Options()
 
 
 func _on_Name_Entry_text_entered(text):

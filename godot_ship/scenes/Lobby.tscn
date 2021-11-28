@@ -89,7 +89,7 @@ __meta__ = {
 margin_top = 24.0
 margin_right = 123.0
 margin_bottom = 44.0
-text = "Connect to Game"
+text = "Join Game"
 
 [node name="Connected Options" type="VBoxContainer" parent="Lobby Options"]
 visible = false
@@ -154,7 +154,7 @@ margin_top = 404.977
 margin_right = 441.136
 margin_bottom = 450.977
 rect_min_size = Vector2( 240, 46 )
-window_title = "Connect to Game"
+window_title = "Join Game"
 __meta__ = {
 "_edit_use_anchors_": false
 }
