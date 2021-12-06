@@ -25,7 +25,6 @@ var network_id
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-
 	get_node("Forfeit Confirmation").get_ok().text = "Yes"
 	get_node("Forfeit Confirmation").get_cancel().text = "No"
 	get_node("Forfeit Confirmation").get_ok().rect_min_size.x = 100
@@ -78,7 +77,6 @@ remote func state_check(pos):
 		LOST:
 			# the other player wins
 			rpc("state_win", player.board.ship_data)
-			victory_screen(null, false)
 		SUNK, HIT:
 			# Hit
 			rpc("state_fire")
@@ -87,11 +85,19 @@ remote func state_check(pos):
 			state_fire()
 	pass
 
-#   state_win: The winning state. If you reach here, someone's won.
+#   state_win: The winning state. If you reach here, you've won.
 #     ships: The opponent's ship data, so that their board can be shown
 remote func state_win(ships):
-	victory_screen(ships)
-	pass
+	# Send ships back to the opponent:
+	rpc("state_lose", player.board.ship_data)
+	# Show the victory screen
+	victory_screen(ships, true)
+
+#   state_lose: The losing state. If you reach here, you've lost.
+#     ships: The opponent's ship data, so that their board can be shown
+remote func state_lose(ships):
+	# Show the not-victory screen
+	victory_screen(ships, false)
 
 #   play_hit_sound: Play a hit sound depending on the severity of the hit
 #     value: Lost/Sunk/Hit/Miss
@@ -149,17 +155,22 @@ func _on_player_ready():
 
 #   victory_screen: display the victory screen
 func victory_screen(ships, winner = true):
-	if winner:
-		# Hide the buttons
-		get_node("Buttons").hide()
-		# Create a new Victory screen
-		var victory = Victory.instance()
-		# Give it the ships received from the opponent
+	# Stop listening for opponent disconnections
+	Net.disconnect("disconnected", self, "connection_error")
+	# Hide the buttons
+	get_node("Buttons").hide()
+	# Create a new Victory screen
+	var victory = Victory.instance()
+	# Allow victory to end the game
+	victory.connect("end_game", self, "end")
+	# Tell victory whether we've won or lost
+	victory.set_win(winner)
+	# If we were given ships to display
+	if ships:
+		# Give victory the ships
 		victory.reveal_ships(ships)
-		# Add victory to the scene tree
-		add_child(victory)
-	else:
-		end()
+	# Add victory to the scene tree
+	add_child(victory)
 
 #   _on_Forfeit_pressed: Handle forfeit button press
 func _on_Forfeit_pressed():
@@ -168,6 +179,8 @@ func _on_Forfeit_pressed():
 
 #   end: end the Game
 sync func end():
+	# Return to the lobby
+	MessageBus.emit_signal("change_scene", "Multiplayer")
 	queue_free()
 
 
@@ -186,9 +199,10 @@ func _on_Forfeit_Confirmation_confirmed():
 	if Net.connected:
 		# Send forfeit request to all users
 		rpc("end")
-	end()
+	else:
+		end()
 
 func _on_Connection_Error_confirmed():
 	# End the game
-	queue_free()
+	end()
 
