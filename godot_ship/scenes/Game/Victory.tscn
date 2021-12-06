@@ -4,50 +4,95 @@
 [ext_resource path="res://assets/font/Minecraft.ttf" type="DynamicFontData" id=2]
 
 [sub_resource type="DynamicFont" id=1]
-size = 40
+size = 48
+outline_size = 2
+outline_color = Color( 0, 0, 0, 1 )
+use_mipmaps = true
+extra_spacing_char = 2
 font_data = ExtResource( 2 )
 
 [node name="Victory" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
+margin_top = -0.471924
+margin_bottom = -0.471924
 mouse_filter = 2
 script = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="exit_to_main" type="Button" parent="."]
-margin_left = 541.0
-margin_top = 327.85
-margin_right = 636.0
-margin_bottom = 353.85
-text = "Exit to Main"
+[node name="Board Placeholder" type="Control" parent="."]
+margin_left = 18.0
+margin_top = 18.0
+margin_right = 342.0
+margin_bottom = 342.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Button2" type="Button" parent="."]
-visible = false
-margin_left = 2.22023
-margin_top = 337.41
-margin_right = 63.2202
-margin_bottom = 357.41
-text = "Restart"
+[node name="Center Buttons" type="CenterContainer" parent="."]
+margin_left = 342.0
+margin_top = 180.0
+margin_right = 622.0
+margin_bottom = 342.0
+grow_horizontal = 2
+grow_vertical = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
-[node name="Victory" type="Label" parent="."]
-margin_left = 380.0
-margin_top = 44.5109
-margin_right = 260.32
-margin_bottom = 84.5109
-size_flags_vertical = 0
+[node name="Buttons" type="VBoxContainer" parent="Center Buttons"]
+margin_left = 60.0
+margin_top = 57.0
+margin_right = 220.0
+margin_bottom = 105.0
+rect_min_size = Vector2( 160, 0 )
+custom_constants/separation = 8
+
+[node name="Restart" type="Button" parent="Center Buttons/Buttons"]
+margin_right = 160.0
+margin_bottom = 20.0
+rect_min_size = Vector2( 160, 0 )
+text = "Play Again"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Exit to Title" type="Button" parent="Center Buttons/Buttons"]
+margin_top = 28.0
+margin_right = 160.0
+margin_bottom = 48.0
+text = "Return to Title"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Center Text" type="CenterContainer" parent="."]
+margin_left = 342.0
+margin_top = 18.0
+margin_right = 622.0
+margin_bottom = 180.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Text" type="Label" parent="Center Text"]
+margin_left = 50.0
+margin_top = 57.0
+margin_right = 230.0
+margin_bottom = 105.0
+size_flags_stretch_ratio = 0.0
 custom_fonts/font = SubResource( 1 )
+custom_colors/font_color = Color( 1, 1, 1, 1 )
+custom_colors/font_outline_modulate = Color( 0, 0, 0, 1 )
+custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
+custom_constants/shadow_offset_x = 0
+custom_constants/shadow_offset_y = 6
 text = "Victory"
-align = 1
-valign = 1
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[connection signal="button_down" from="exit_to_main" to="." method="_on_exit_to_main_button_down"]
-[connection signal="pressed" from="exit_to_main" to="." method="_on_Button_pressed"]
-[connection signal="button_down" from="Button2" to="." method="_on_restart_button_down"]
+[connection signal="pressed" from="Center Buttons/Buttons/Restart" to="." method="_on_Restart_pressed"]
+[connection signal="pressed" from="Center Buttons/Buttons/Exit to Title" to="." method="_on_Exit_to_Title_pressed"]
