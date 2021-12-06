@@ -62,8 +62,8 @@ func send(id, mail, mail_type = REPLY):
 # Host
 #   start_host: Host the game
 #     port: TCP port
-#     max_players: Largest number of players allowed to connect at a time
-func start_host(port = DEFAULT_PORT, max_players = 2):
+#     max_players: Largest number of players allowed to connect at a time (the host does not count)
+func start_host(port = DEFAULT_PORT, max_players = 1):
 	get_hostname()
 	peer_info[1] = local_info
 	# Notify that peer list has updated
@@ -150,16 +150,10 @@ func _ready():
 func _peer_connected(id):
 	# Send peer info to remote peer
 	rpc_id(id, "register_peer", local_info)
-	if hosting and peer_info.size() >= 2:
-		pass
-	pass
 
 func _peer_disconnected(id):
 	# Unregister the peer locally
 	unregister_peer(id)
-	if hosting and peer_info.size() < 2:
-		pass
-	pass
 
 
 func _host_connected():
