@@ -357,14 +357,27 @@ func listify_string(string):
 		res = string.split(' ',  true, 0)
 	return res
 
+#  file_exists: checks if a file exists at path
+#    params: path: string denoting the path to a file
+#    returns: bool denoting file's presence at path
+func file_exists(path):
+	var D = Directory.new()
+	return D.file_exists(path)
+
+
 # Commands. All commands take in a parameter called command,
 # which contains a partially tokenized command
 #   start: Loads scene from res://scenes/*.tscn by filename, and starts it
 func command_start (command):
 	if command.size() > 1:
-		var pack = load("res://scenes/%s.tscn" % command[1])
-		get_pwn().add_child(pack.instance());
-		debug_print_line("started '%s'\n" % command[1])
+		var path = "res://scenes/%s.tscn" % command[1]
+		var pack = load(path) if file_exists(path) else null
+		# Check if the resource was opened
+		if pack:
+			get_pwn().add_child(pack.instance());
+			debug_print_line("started '%s'\n" % command[1])
+		else:
+			debug_print_line("Path not found: %s\n" % "res://scenes/%s.tscn" % command[1])
 	else:
 		debug_print_line(get_usage(command[0]))
 
@@ -374,7 +387,7 @@ func command_kill (command):
 		var node = get_pwn().find_node(command[1], false, false)
 		if node:
 			if String(node.get_path()).match("*Debug*"):
-				debug_print_line("YOU DIDN'T SAY THE MAGIC WORD!\n")
+				debug_print_line("I'm sorry, Dave. I'm afraid I can't do that.\n")
 			else:
 				node.queue_free()
 				debug_print_line("%s killed\n" % command[1])
