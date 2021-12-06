@@ -27,9 +27,19 @@ func set_IP_Address_text(show):
 func _ready():
 	Net.connect("peers_updated", self, "_on_peers_updated")
 	Net.connect("disconnected",  self, "_on_Net_disconnected")
+	# Let the player name default to hostname
 	name_popup.get_node("Name Entry").text = Net.get_hostname()
+	# Update the peers list
 	_on_peers_updated()
-	pass
+	# Set the keyboard-control focus to the first valid focus
+	find_next_valid_focus().grab_focus()
+	# Resume a connection, if coming to this screen from a connected state (i.e. "restart gane"
+	if Net.hosting:
+		# Show the host IP address
+		set_IP_Address_text(true)
+	if Net.connected:
+		# Show "Connected Options"
+		show_Connected_Options()
 
 func show_Connected_Options():
 	# [Hide]/Show the host options
